@@ -7,8 +7,6 @@ These are only changes I figured you'd really wanna know or things that probably
 - change: camera panning is split from middle mouse panning
 - change: made tool list dynamic instead of hardcoded, kinda
 
-- addition: getToolString function
-
 - change: the about text is now a text file cause, yes. It's easy lolz.
 - change: the controls text is now a text file cause, yes. It's easy lolz.
 
