@@ -7,65 +7,91 @@ import flixel.group.FlxSpriteGroup;
 import objects.Canvas;
 import objects.ui.Button;
 
-class Toolbar extends FlxSpriteGroup {
-    public var toolbarWidth:Int = 46;
-    public var toolbarPadding:Int = 6;
-    public var toolbarSpacing:Int = 10;
-    public var toolbarYOffset:Int = 40;
+class Toolbar extends FlxSpriteGroup
+{
+	public var toolbarWidth:Int = 46;
+	public var toolbarPadding:Int = 6;
+	public var toolbarSpacing:Int = 10;
+	public var toolbarYOffset:Int = 40;
 
-    var canvas:Canvas;
-    var hudCamera:FlxCamera;
+	var canvas:Canvas;
+	var hudCamera:FlxCamera;
 
-    var bg:FlxSprite;
-    public function new(canvas:Canvas, hudCamera:FlxCamera) {
-        super();
-        this.canvas = canvas;
-        this.hudCamera = hudCamera;
-        this.cameras = [hudCamera];
+	var bg:FlxSprite;
 
-        build();
-    }
+	public function new(canvas:Canvas, hudCamera:FlxCamera)
+	{
+		super();
+		this.canvas = canvas;
+		this.hudCamera = hudCamera;
+		this.cameras = [hudCamera];
 
-    var brushBtn:Button;
-    var eraserBtn:Button;
-    function build() {
-        var fullWidth:Int = toolbarWidth - (toolbarPadding * 2);
+		build();
+	}
 
-        bg = new FlxSprite().makeGraphic(toolbarWidth, 1, Colors.container);
-        bg.origin.set(0.5, 0);
-        add(bg);
+	var brushBtn:Button;
+	var eraserBtn:Button;
+	var cameraPanBtn:Button;
 
-        var yPos:Int = toolbarPadding;
+	function build()
+	{
+		var fullWidth:Int = toolbarWidth - (toolbarPadding * 2);
 
-        // TODO: make tool list dynamic instead of hardcoded.
-        brushBtn = new Button(toolbarPadding, yPos, "", fullWidth, fullWidth, 'brush');
-        brushBtn.onClick = () -> {
-            canvas.brushMode = DRAW;
-        }
-        add(brushBtn);
+		bg = new FlxSprite().makeGraphic(toolbarWidth, 1, Colors.container);
+		bg.origin.set(0.5, 0);
+		add(bg);
 
-        yPos += Std.int(brushBtn.height + toolbarSpacing);
+		var yPos:Int = toolbarPadding;
 
-        eraserBtn = new Button(toolbarPadding, yPos, "", fullWidth, fullWidth, 'eraser');
-        eraserBtn.onClick = () -> {
-            canvas.brushMode = ERASE;
-        }
-        add(eraserBtn);
-    }
+		for (button in ['brush', 'eraser', 'camera_pan',])
+		{
+			var object:Button = new Button(toolbarPadding, yPos, '', fullWidth, fullWidth, button.toLowerCase());
 
-    override public function update(elapsed:Float) {
-        super.update(elapsed);
+			object.onClick = () ->
+			{
+				PlayState.cameraPanningTool = false;
+				PlayState.middleMousePanning = false;
 
-        bg.scale.y = FlxG.height - toolbarYOffset;
-        y = toolbarYOffset;
+				switch (button.toLowerCase())
+				{
+					case 'brush':
+						canvas.brushMode = DRAW;
+					case 'eraser':
+						canvas.brushMode = ERASE;
+					case 'camera_pan':
+						canvas.brushMode = NONE;
+						PlayState.cameraPanningTool = true;
 
-        switch (canvas.brushMode) {
-            case DRAW: 
-                brushBtn.bgColorDefault = Colors.buttonHover;
-                eraserBtn.bgColorDefault = Colors.container;
-            case ERASE: 
-                brushBtn.bgColorDefault = Colors.container;
-                eraserBtn.bgColorDefault = Colors.buttonHover;
-        }
-    }
+						PlayState.lastMouseX = FlxG.mouse.getViewPosition().x;
+						PlayState.lastMouseY = FlxG.mouse.getViewPosition().y;
+				}
+			}
+
+			add(object);
+
+			yPos += Std.int(object.height + toolbarSpacing);
+
+			switch (button.toLowerCase())
+			{
+				case 'brush':
+					brushBtn = object;
+				case 'eraser':
+					eraserBtn = object;
+				case 'camera_pan':
+					cameraPanBtn = object;
+			}
+		}
+	}
+
+	override public function update(elapsed:Float)
+	{
+		super.update(elapsed);
+
+		bg.scale.y = FlxG.height - toolbarYOffset;
+		y = toolbarYOffset;
+
+		brushBtn.bgColorDefault = (canvas.brushMode == DRAW) ? Colors.buttonHover : Colors.container;
+		eraserBtn.bgColorDefault = (canvas.brushMode == ERASE) ? Colors.buttonHover : Colors.container;
+		cameraPanBtn.bgColorDefault = (PlayState.cameraPanningTool) ? Colors.buttonHover : Colors.container;
+	}
 }

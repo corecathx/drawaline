@@ -249,4 +249,5 @@ class Canvas extends FlxSpriteGroup {
 enum BrushMode {
     DRAW;
     ERASE;
+	NONE;
 }

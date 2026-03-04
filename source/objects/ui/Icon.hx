@@ -17,6 +17,7 @@ class Icon extends FlxSprite {
         animation.add('minimize', [5], 1, true);
         animation.add('maximize', [6], 1, true);
         animation.add('close', [7], 1, true);
+        animation.add('camera_pan', [8], 1, true);
         
         animation.play(iconName);
     }

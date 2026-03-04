@@ -1,0 +1,15 @@
+These are only changes I figured you'd really wanna know or things that probably needed explanations
+
+- addition: camera panning  (pixel art cause I cant do anything else without it looking baaaaaaaaaddddddddddd)
+- addition: "NONE" BrushMode entry
+
+- change: Set the width and height in the Project.xml because VSCode wasn't giving me formatting
+- change: camera panning is split from middle mouse panning
+- change: made tool list dynamic instead of hardcoded, kinda
+
+- addition: getToolString function
+
+- change: the about text is now a text file cause, yes. It's easy lolz.
+- change: the controls text is now a text file cause, yes. It's easy lolz.
+
+My formatting probably fucked shit up, sorry :(

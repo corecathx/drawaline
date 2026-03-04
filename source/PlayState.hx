@@ -1,5 +1,6 @@
 package;
 
+import lime.utils.Assets;
 import backend.KeybindManager;
 import backend.ProjectHandler;
 import flixel.FlxCamera;
@@ -17,200 +18,234 @@ import objects.ui.MenuBar;
 import objects.ui.Popup;
 import objects.ui.TextInput;
 
-class PlayState extends FlxState {
-    var hudCamera:FlxCamera;
-    var canvas:Canvas;
-    var sidebar:Sidebar;
-    var toolbar:Toolbar;
-    var menuBar:MenuBar;
+class PlayState extends FlxState
+{
+	var hudCamera:FlxCamera;
+	var canvas:Canvas;
+	var sidebar:Sidebar;
+	var toolbar:Toolbar;
+	var menuBar:MenuBar;
 
-    var zoom:Float = 1;
-    static inline var ZOOM_MIN:Float = 0.2;
-    static inline var ZOOM_MAX:Float = 4;
-    static inline var ZOOM_STEP:Float = 0.1;
-    var isPanning:Bool = false;
-    var lastMouseX:Float = 0;
-    var lastMouseY:Float = 0;
+	var zoom:Float = 1;
 
-    var infoTextBG:FlxSprite;
-    var infoText:FlxText;
-    var focusedLayerInfo:FlxText;
+	static inline var ZOOM_MIN:Float = 0.2;
+	static inline var ZOOM_MAX:Float = 4;
+	static inline var ZOOM_STEP:Float = 0.1;
 
-    var _lastTitle:String = "";
+	public static var cameraPanningTool:Bool = false;
+	public static var middleMousePanning:Bool = false;
 
-    override public function create() {
-        super.create();
-        FlxSprite.defaultAntialiasing = true;
-        FlxG.camera.bgColor = Colors.surface;
+	public static var lastMouseX:Float = 0;
+	public static var lastMouseY:Float = 0;
 
-        hudCamera = new FlxCamera();
-        hudCamera.bgColor = FlxColor.TRANSPARENT;
-        FlxG.cameras.add(hudCamera, false);
+	var infoTextBG:FlxSprite;
+	var infoText:FlxText;
+	var focusedLayerInfo:FlxText;
 
-        canvas = new Canvas(640, 480);
-        add(canvas);
-        canvas.screenCenter();
+	var _lastTitle:String = "";
 
-        sidebar = new Sidebar(canvas, hudCamera);
-        add(sidebar);
+	override public function create()
+	{
+		super.create();
+		FlxSprite.defaultAntialiasing = true;
+		FlxG.camera.bgColor = Colors.surface;
 
-        toolbar = new Toolbar(canvas, hudCamera);
-        add(toolbar);
+		hudCamera = new FlxCamera();
+		hudCamera.bgColor = FlxColor.TRANSPARENT;
+		FlxG.cameras.add(hudCamera, false);
 
-        infoTextBG = new FlxSprite().makeGraphic(1, 30, Colors.container);
-        infoTextBG.cameras = [hudCamera];
-        infoTextBG.origin.set(0, 0.5);
-        add(infoTextBG);
+		canvas = new Canvas(640, 480);
+		add(canvas);
+		canvas.screenCenter();
 
-        focusedLayerInfo = new FlxText(toolbar.toolbarWidth + 10, 32 + 10);
-        focusedLayerInfo.setFormat('assets/data/musticapro.otf', 12, FlxColor.WHITE, LEFT);
-        focusedLayerInfo.cameras = [hudCamera];
-        add(focusedLayerInfo);
+		sidebar = new Sidebar(canvas, hudCamera);
+		add(sidebar);
 
-        initMenuBar();
+		toolbar = new Toolbar(canvas, hudCamera);
+		add(toolbar);
 
-        infoText = new FlxText();
-        infoText.setFormat('assets/data/musticapro.otf', 12, FlxColor.WHITE, LEFT);
-        infoText.cameras = [hudCamera];
-        add(infoText);
+		infoTextBG = new FlxSprite().makeGraphic(1, 30, Colors.container);
+		infoTextBG.cameras = [hudCamera];
+		infoTextBG.origin.set(0, 0.5);
+		add(infoTextBG);
 
-        FlxG.camera.zoom = zoom;
+		focusedLayerInfo = new FlxText(toolbar.toolbarWidth + 10, 32 + 10);
+		focusedLayerInfo.setFormat('assets/data/musticapro.otf', 12, FlxColor.WHITE, LEFT);
+		focusedLayerInfo.cameras = [hudCamera];
+		add(focusedLayerInfo);
 
-        Main.instance.windowResized.add((w, h) -> hudCamera.setSize(w, h));
+		initMenuBar();
 
-        var textInput = new TextInput();
-        textInput.cameras = [hudCamera];
-        add(textInput);
+		infoText = new FlxText();
+		infoText.setFormat('assets/data/musticapro.otf', 12, FlxColor.WHITE, LEFT);
+		infoText.cameras = [hudCamera];
+		add(infoText);
 
-        ProjectHandler.newProject(canvas, () -> sidebar.layerList.rebuild());
+		FlxG.camera.zoom = zoom;
 
-        var keybinds:KeybindManager = new KeybindManager();
-        keybinds.addKey([CONTROL, N], () -> ProjectHandler.newProject(canvas, _onProjectChange));
-        keybinds.addKey([CONTROL, O], () -> canvas.loadProject(_onProjectChange, e -> trace("open error: " + e)));
-        keybinds.addKey([CONTROL, S], () -> canvas.saveProject(_onProjectChange));
-        keybinds.addKey([CONTROL, SHIFT, S], () -> ProjectHandler.saveAs(canvas, _onProjectChange));
-        keybinds.addKey([CONTROL, E], () -> canvas.exportToPNG(() -> trace("export completed")));
-        add(keybinds);
-    }
+		Main.instance.windowResized.add((w, h) -> hudCamera.setSize(w, h));
 
-    function initMenuBar() {
-        menuBar = new MenuBar(0, 0, FlxG.width);
-        menuBar.cameras = [hudCamera];
-        add(menuBar);
+		var textInput = new TextInput();
+		textInput.cameras = [hudCamera];
+		add(textInput);
 
-        var fileMenu = menuBar.addMenu("File", FlxG.width);
-        fileMenu.addItem("New", () -> ProjectHandler.newProject(canvas, _onProjectChange));
-        fileMenu.addItem("Open...", () -> canvas.loadProject(_onProjectChange, e -> trace("open error: " + e)));
-        fileMenu.addItem("Save", () -> canvas.saveProject(_onProjectChange));
-        fileMenu.addItem("Save As", () -> ProjectHandler.saveAs(canvas, _onProjectChange));
-        fileMenu.addItem("Export PNG", () -> canvas.exportToPNG(() -> trace("export completed")));
+		ProjectHandler.newProject(canvas, () -> sidebar.layerList.rebuild());
 
-        var editMenu = menuBar.addMenu("Edit", FlxG.width);
-        editMenu.addItem("Undo", () -> canvas.focusedLayer?.undoLastStroke());
-        editMenu.addItem("Redo", () -> trace("redo not implemented"));
+		var keybinds:KeybindManager = new KeybindManager();
+		keybinds.addKey([CONTROL, N], () -> ProjectHandler.newProject(canvas, _onProjectChange));
+		keybinds.addKey([CONTROL, O], () -> canvas.loadProject(_onProjectChange, e -> trace("open error: " + e)));
+		keybinds.addKey([CONTROL, S], () -> canvas.saveProject(_onProjectChange));
+		keybinds.addKey([CONTROL, SHIFT, S], () -> ProjectHandler.saveAs(canvas, _onProjectChange));
+		keybinds.addKey([CONTROL, E], () -> canvas.exportToPNG(() -> trace("export completed")));
+		add(keybinds);
+	}
 
-        var viewMenu = menuBar.addMenu("View", FlxG.width);
-        viewMenu.addItem("Toggle smoothing", () -> canvas.antialiasing = !canvas.antialiasing);
+	function initMenuBar()
+	{
+		menuBar = new MenuBar(0, 0, FlxG.width);
+		menuBar.cameras = [hudCamera];
+		add(menuBar);
 
-        var helpMenu = menuBar.addMenu("Help", FlxG.width);
-        helpMenu.addItem("Controls", () -> Popup.show(
-            "Controls", 
-            "Left Click - Use current tool"
-            + "\nMiddle Click - Pan the canvas around"
-            + "\nCTRL + Z - Undo last action"
-            + "\nCTRL + N - New project"
-            + "\nCTRL + O - Open project"
-            + "\nCTRL + S - Save"
-            + "\nCTRL + SHIFT + S - Save as"
-            , 
-            [{ label: "OK", callback: () -> {} }]
-        ));
-        helpMenu.addItem("About", () -> Popup.show("About", "drawaline - corecathx 2026", [{ label: "OK", callback: () -> {} }]));
-    }
+		var fileMenu = menuBar.addMenu("File", FlxG.width);
+		fileMenu.addItem("New", () -> ProjectHandler.newProject(canvas, _onProjectChange));
+		fileMenu.addItem("Open...", () -> canvas.loadProject(_onProjectChange, e -> trace("open error: " + e)));
+		fileMenu.addItem("Save", () -> canvas.saveProject(_onProjectChange));
+		fileMenu.addItem("Save As", () -> ProjectHandler.saveAs(canvas, _onProjectChange));
+		fileMenu.addItem("Export PNG", () -> canvas.exportToPNG(() -> trace("export completed")));
 
-    function _onProjectChange() {
-        sidebar.layerList.rebuild();
-        _updateTitleBar();
-    }
+		var editMenu = menuBar.addMenu("Edit", FlxG.width);
+		editMenu.addItem("Undo", () -> canvas.focusedLayer?.undoLastStroke());
+		editMenu.addItem("Redo", () -> trace("redo not implemented"));
 
-    function _updateTitleBar() {
-        var title = 'drawaline - ${canvas.projectFilePath ?? canvas.projectName}';
-        if (title != _lastTitle) {
-            _lastTitle = title;
-            Application.current.window.title = title;
-        }
-    }
+		var viewMenu = menuBar.addMenu("View", FlxG.width);
+		viewMenu.addItem("Toggle smoothing", () -> canvas.antialiasing = !canvas.antialiasing);
 
-    override public function update(elapsed:Float) {
-        super.update(elapsed);
+		var helpMenu = menuBar.addMenu("Help", FlxG.width);
+		helpMenu.addItem("Controls", () -> Popup.show("Controls", Assets.getText('assets/data/menubar/controls.txt'), [
+			{
+				label: "OK",
+				callback: () -> {}
+			}
+		]));
+		helpMenu.addItem("About", () -> Popup.show("About", Assets.getText('assets/data/menubar/about.txt'), [{label: "OK", callback: () -> {}}]));
+	}
 
-        var menuH = Std.int(menuBar.bg.scale.y);
-        toolbar.toolbarYOffset = menuH;
-        sidebar.sidebarYOffset = menuH;
-        menuBar.bg.scale.x = FlxG.width;
+	function _onProjectChange()
+	{
+		sidebar.layerList.rebuild();
+		_updateTitleBar();
+	}
 
-        _updateInfoBar();
-        _updateCanvasInteraction();
-    }
+	function _updateTitleBar()
+	{
+		var title = 'drawaline - ${canvas.projectFilePath ?? canvas.projectName}';
+		if (title != _lastTitle)
+		{
+			_lastTitle = title;
+			Application.current.window.title = title;
+		}
+	}
 
-    function _updateInfoBar() {
-        var tbW = toolbar.toolbarWidth;
-        var sbW = sidebar.sidebarWidth;
+	override public function update(elapsed:Float)
+	{
+		super.update(elapsed);
 
-        infoTextBG.x = tbW;
-        infoTextBG.y = FlxG.height - infoTextBG.height;
-        infoTextBG.scale.x = FlxG.width - tbW - sbW;
+		var menuH = Std.int(menuBar.bg.scale.y);
+		toolbar.toolbarYOffset = menuH;
+		sidebar.sidebarYOffset = menuH;
+		menuBar.bg.scale.x = FlxG.width;
 
-        var mp = FlxG.mouse.getWorldPosition();
-        var lx = Std.int(mp.x - canvas.x);
-        var ly = Std.int(mp.y - canvas.y);
-        var brushStr = canvas.brushMode == DRAW ? "Brush" : "Eraser";
+		_updateInfoBar();
+		_updateCanvasInteraction();
+	}
 
-        focusedLayerInfo.text = canvas.focusedLayer?.layerName ?? "No focused layer.";
-        infoText.text = '${canvas.canvasWidth}x${canvas.canvasHeight} | $lx, $ly | ${Std.int(zoom * 100)}% | $brushStr';
-        infoText.setPosition(
-            infoTextBG.x + 5,
-            infoTextBG.y + (infoTextBG.height - infoText.height) * 0.5
-        );
-    }
+	function _updateInfoBar()
+	{
+		var tbW = toolbar.toolbarWidth;
+		var sbW = sidebar.sidebarWidth;
 
-    function _updateCanvasInteraction() {
-        var mouseView = FlxG.mouse.getViewPosition(hudCamera);
-        var menuH = menuBar.bg.scale.y;
-        var blocked = mouseView.x > FlxG.width - sidebar.sidebarWidth
-                   || mouseView.y < menuH
-                   || mouseView.x < toolbar.toolbarWidth;
+		infoTextBG.x = tbW;
+		infoTextBG.y = FlxG.height - infoTextBG.height;
+		infoTextBG.scale.x = FlxG.width - tbW - sbW;
 
-        if (canvas.focusedLayer != null)
-            canvas.focusedLayer.active = !blocked;
+		var mp = FlxG.mouse.getWorldPosition();
+		var lx = Std.int(mp.x - canvas.x);
+		var ly = Std.int(mp.y - canvas.y);
+		var toolStr = getToolString();
 
-        if (blocked) return;
+		focusedLayerInfo.text = canvas.focusedLayer?.layerName ?? "No focused layer.";
+		infoText.text = '${canvas.canvasWidth}x${canvas.canvasHeight} | $lx, $ly | ${Std.int(zoom * 100)}% | $toolStr';
+		infoText.setPosition(infoTextBG.x + 5, infoTextBG.y + (infoTextBG.height - infoText.height) * 0.5);
+	}
 
-        if (FlxG.mouse.wheel != 0 && FlxG.keys.pressed.CONTROL) {
-            var oldZoom = zoom;
-            zoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, zoom + FlxG.mouse.wheel * ZOOM_STEP));
-            if (zoom != oldZoom) {
-                var before = FlxG.mouse.getWorldPosition();
-                FlxG.camera.zoom = zoom;
-                var after = FlxG.mouse.getWorldPosition();
-                FlxG.camera.scroll.x += before.x - after.x;
-                FlxG.camera.scroll.y += before.y - after.y;
-            }
-        }
+	function getToolString():String
+	{
+		if (middleMousePanning)
+			return 'Camera Panning (Middle Mouse)';
 
-        var mv = FlxG.mouse.getViewPosition();
-        if (FlxG.mouse.justPressedMiddle) {
-            isPanning = true;
-            lastMouseX = mv.x;
-            lastMouseY = mv.y;
-        }
-        if (FlxG.mouse.pressedMiddle && isPanning) {
-            FlxG.camera.scroll.x -= mv.x - lastMouseX;
-            FlxG.camera.scroll.y -= mv.y - lastMouseY;
-            lastMouseX = mv.x;
-            lastMouseY = mv.y;
-        }
-        if (FlxG.mouse.justReleasedMiddle)
-            isPanning = false;
-    }
+		if (cameraPanningTool)
+			return 'Camera Panning (Tool)';
+
+		if (canvas.brushMode == DRAW)
+			return 'Brush';
+		if (canvas.brushMode == ERASE)
+			return 'Eraser';
+
+		return 'Unknown';
+	}
+
+	function _updateCanvasInteraction()
+	{
+		var mouseView = FlxG.mouse.getViewPosition(hudCamera);
+		var menuH = menuBar.bg.scale.y;
+		var blocked = mouseView.x > FlxG.width - sidebar.sidebarWidth || mouseView.y < menuH || mouseView.x < toolbar.toolbarWidth;
+
+		if (canvas.focusedLayer != null)
+			canvas.focusedLayer.active = !blocked;
+
+		if (blocked)
+			return;
+
+		if (FlxG.mouse.wheel != 0 && FlxG.keys.pressed.CONTROL)
+		{
+			var oldZoom = zoom;
+			zoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, zoom + FlxG.mouse.wheel * ZOOM_STEP));
+			if (zoom != oldZoom)
+			{
+				var before = FlxG.mouse.getWorldPosition();
+				FlxG.camera.zoom = zoom;
+				var after = FlxG.mouse.getWorldPosition();
+				FlxG.camera.scroll.x += before.x - after.x;
+				FlxG.camera.scroll.y += before.y - after.y;
+			}
+		}
+
+		var mv = FlxG.mouse.getViewPosition();
+
+		if (FlxG.mouse.justPressedMiddle)
+		{
+			middleMousePanning = true;
+
+			lastMouseX = mv.x;
+			lastMouseY = mv.y;
+		}
+
+		if (FlxG.mouse.justPressed && cameraPanningTool)
+		{
+			lastMouseX = mv.x;
+			lastMouseY = mv.y;
+		}
+
+		if (FlxG.mouse.pressedMiddle && middleMousePanning || FlxG.mouse.pressed && cameraPanningTool)
+		{
+			FlxG.camera.scroll.x -= mv.x - lastMouseX;
+			FlxG.camera.scroll.y -= mv.y - lastMouseY;
+
+			lastMouseX = mv.x;
+			lastMouseY = mv.y;
+		}
+
+		if (FlxG.mouse.justReleasedMiddle)
+			middleMousePanning = false;
+	}
 }
