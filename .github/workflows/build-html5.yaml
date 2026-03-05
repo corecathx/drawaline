@@ -24,7 +24,7 @@ jobs:
           haxelib run lime setup
 
       - name: Build HTML5
-        run: lime build html5 -release
+        run: haxelib run lime build html5
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
