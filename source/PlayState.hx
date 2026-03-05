@@ -18,8 +18,7 @@ import objects.ui.MenuBar;
 import objects.ui.Popup;
 import objects.ui.TextInput;
 
-class PlayState extends FlxState
-{
+class PlayState extends FlxState {
 	var hudCamera:FlxCamera;
 	var canvas:Canvas;
 	var sidebar:Sidebar;
@@ -44,8 +43,7 @@ class PlayState extends FlxState
 
 	var _lastTitle:String = "";
 
-	override public function create()
-	{
+	override public function create() {
 		super.create();
 		FlxSprite.defaultAntialiasing = true;
 		FlxG.camera.bgColor = Colors.surface;
@@ -100,8 +98,7 @@ class PlayState extends FlxState
 		add(keybinds);
 	}
 
-	function initMenuBar()
-	{
+	function initMenuBar() {
 		menuBar = new MenuBar(0, 0, FlxG.width);
 		menuBar.cameras = [hudCamera];
 		add(menuBar);
@@ -130,24 +127,20 @@ class PlayState extends FlxState
 		helpMenu.addItem("About", () -> Popup.show("About", Assets.getText('assets/data/menubar/about.txt'), [{label: "OK", callback: () -> {}}]));
 	}
 
-	function _onProjectChange()
-	{
+	function _onProjectChange() {
 		sidebar.layerList.rebuild();
 		_updateTitleBar();
 	}
 
-	function _updateTitleBar()
-	{
+	function _updateTitleBar() {
 		var title = 'drawaline - ${canvas.projectFilePath ?? canvas.projectName}';
-		if (title != _lastTitle)
-		{
+		if (title != _lastTitle) {
 			_lastTitle = title;
 			Application.current.window.title = title;
 		}
 	}
 
-	override public function update(elapsed:Float)
-	{
+	override public function update(elapsed:Float) {
 		super.update(elapsed);
 
 		var menuH = Std.int(menuBar.bg.scale.y);
@@ -159,8 +152,7 @@ class PlayState extends FlxState
 		_updateCanvasInteraction();
 	}
 
-	function _updateInfoBar()
-	{
+	function _updateInfoBar() {
 		var tbW = toolbar.toolbarWidth;
 		var sbW = sidebar.sidebarWidth;
 
@@ -178,8 +170,7 @@ class PlayState extends FlxState
 		infoText.setPosition(infoTextBG.x + 5, infoTextBG.y + (infoTextBG.height - infoText.height) * 0.5);
 	}
 
-	function getToolString():String
-	{
+	function getToolString():String {
 		if (middleMousePanning)
 			return 'Camera Panning (Middle Mouse)';
 
@@ -194,8 +185,7 @@ class PlayState extends FlxState
 		return 'Unknown';
 	}
 
-	function _updateCanvasInteraction()
-	{
+	function _updateCanvasInteraction() {
 		var mouseView = FlxG.mouse.getViewPosition(hudCamera);
 		var menuH = menuBar.bg.scale.y;
 		var blocked = mouseView.x > FlxG.width - sidebar.sidebarWidth || mouseView.y < menuH || mouseView.x < toolbar.toolbarWidth;
@@ -206,12 +196,10 @@ class PlayState extends FlxState
 		if (blocked)
 			return;
 
-		if (FlxG.mouse.wheel != 0 && FlxG.keys.pressed.CONTROL)
-		{
+		if (FlxG.mouse.wheel != 0 && FlxG.keys.pressed.CONTROL) {
 			var oldZoom = zoom;
 			zoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, zoom + FlxG.mouse.wheel * ZOOM_STEP));
-			if (zoom != oldZoom)
-			{
+			if (zoom != oldZoom) {
 				var before = FlxG.mouse.getWorldPosition();
 				FlxG.camera.zoom = zoom;
 				var after = FlxG.mouse.getWorldPosition();
@@ -222,22 +210,19 @@ class PlayState extends FlxState
 
 		var mv = FlxG.mouse.getViewPosition();
 
-		if (FlxG.mouse.justPressedMiddle)
-		{
+		if (FlxG.mouse.justPressedMiddle) {
 			middleMousePanning = true;
 
 			lastMouseX = mv.x;
 			lastMouseY = mv.y;
 		}
 
-		if (FlxG.mouse.justPressed && cameraPanningTool)
-		{
+		if (FlxG.mouse.justPressed && cameraPanningTool) {
 			lastMouseX = mv.x;
 			lastMouseY = mv.y;
 		}
 
-		if (FlxG.mouse.pressedMiddle && middleMousePanning || FlxG.mouse.pressed && cameraPanningTool)
-		{
+		if (FlxG.mouse.pressedMiddle && middleMousePanning || FlxG.mouse.pressed && cameraPanningTool) {
 			FlxG.camera.scroll.x -= mv.x - lastMouseX;
 			FlxG.camera.scroll.y -= mv.y - lastMouseY;
 

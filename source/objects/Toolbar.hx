@@ -7,8 +7,7 @@ import flixel.group.FlxSpriteGroup;
 import objects.Canvas;
 import objects.ui.Button;
 
-class Toolbar extends FlxSpriteGroup
-{
+class Toolbar extends FlxSpriteGroup {
 	public var toolbarWidth:Int = 46;
 	public var toolbarPadding:Int = 6;
 	public var toolbarSpacing:Int = 10;
@@ -19,8 +18,7 @@ class Toolbar extends FlxSpriteGroup
 
 	var bg:FlxSprite;
 
-	public function new(canvas:Canvas, hudCamera:FlxCamera)
-	{
+	public function new(canvas:Canvas, hudCamera:FlxCamera) {
 		super();
 		this.canvas = canvas;
 		this.hudCamera = hudCamera;
@@ -33,8 +31,7 @@ class Toolbar extends FlxSpriteGroup
 	var eraserBtn:Button;
 	var cameraPanBtn:Button;
 
-	function build()
-	{
+	function build() {
 		var fullWidth:Int = toolbarWidth - (toolbarPadding * 2);
 
 		bg = new FlxSprite().makeGraphic(toolbarWidth, 1, Colors.container);
@@ -43,17 +40,14 @@ class Toolbar extends FlxSpriteGroup
 
 		var yPos:Int = toolbarPadding;
 
-		for (button in ['brush', 'eraser', 'camera_pan',])
-		{
+		for (button in ['brush', 'eraser', 'camera_pan',]) {
 			var object:Button = new Button(toolbarPadding, yPos, '', fullWidth, fullWidth, button.toLowerCase());
 
-			object.onClick = () ->
-			{
+			object.onClick = () -> {
 				PlayState.cameraPanningTool = false;
 				PlayState.middleMousePanning = false;
 
-				switch (button.toLowerCase())
-				{
+				switch (button.toLowerCase()) {
 					case 'brush':
 						canvas.brushMode = DRAW;
 					case 'eraser':
@@ -71,8 +65,7 @@ class Toolbar extends FlxSpriteGroup
 
 			yPos += Std.int(object.height + toolbarSpacing);
 
-			switch (button.toLowerCase())
-			{
+			switch (button.toLowerCase()) {
 				case 'brush':
 					brushBtn = object;
 				case 'eraser':
@@ -83,8 +76,7 @@ class Toolbar extends FlxSpriteGroup
 		}
 	}
 
-	override public function update(elapsed:Float)
-	{
+	override public function update(elapsed:Float) {
 		super.update(elapsed);
 
 		bg.scale.y = FlxG.height - toolbarYOffset;

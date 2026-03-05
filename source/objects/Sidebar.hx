@@ -13,173 +13,171 @@ import objects.ui.Button;
 import objects.ui.Slider;
 
 class Sidebar extends FlxSpriteGroup {
-    public var sidebarWidth:Int = 240;
-    public var sidebarPadding:Int = 20;
-    public var sidebarSpacing:Int = 10;
-    public var sidebarYOffset:Int = 40;
+	public var sidebarWidth:Int = 240;
+	public var sidebarPadding:Int = 20;
+	public var sidebarSpacing:Int = 10;
+	public var sidebarYOffset:Int = 40;
 
-    var canvas:Canvas;
-    var hudCamera:FlxCamera;
+	var canvas:Canvas;
+	var hudCamera:FlxCamera;
 
-    var bg:FlxSprite;
-    var bottomGroup:FlxSpriteGroup;
-    var hueSlider:Slider;
-    var colorPicker:ColorPicker;
-    var colorPreview:FlxSprite;
-    var brushSizeSlider:Slider;
-    var brushSizeIndicator:FlxText;
-    public var layerList:LayerList;
+	var bg:FlxSprite;
+	var bottomGroup:FlxSpriteGroup;
+	var hueSlider:Slider;
+	var colorPicker:ColorPicker;
+	var colorPreview:FlxSprite;
+	var brushSizeSlider:Slider;
+	var brushSizeIndicator:FlxText;
 
-    public function new(canvas:Canvas, hudCamera:FlxCamera) {
-        super();
-        this.canvas = canvas;
-        this.hudCamera = hudCamera;
-        this.cameras = [hudCamera];
+	public var layerList:LayerList;
 
-        build();
-    }
+	public function new(canvas:Canvas, hudCamera:FlxCamera) {
+		super();
+		this.canvas = canvas;
+		this.hudCamera = hudCamera;
+		this.cameras = [hudCamera];
 
-    function build() {
-        var fullWidth:Int = sidebarWidth - (sidebarPadding * 2);
+		build();
+	}
 
-        bg = new FlxSprite().makeGraphic(sidebarWidth, 1, Colors.container);
-        bg.origin.set(0.5, 0);
-        add(bg);
+	function build() {
+		var fullWidth:Int = sidebarWidth - (sidebarPadding * 2);
 
-        var yPos:Int = sidebarPadding;
+		bg = new FlxSprite().makeGraphic(sidebarWidth, 1, Colors.container);
+		bg.origin.set(0.5, 0);
+		add(bg);
 
-        // color picker row
-        var colorPickerSize:Int = fullWidth - sidebarSpacing - 20;
-        colorPicker = new ColorPicker(sidebarPadding, sidebarPadding, colorPickerSize, colorPickerSize);
-        colorPicker.cameras = [hudCamera];
-        colorPicker.onColorChanged = (color:FlxColor) -> {
-            if (canvas.focusedLayer != null)
-                canvas.brushColor = colorPreview.color = color;
-        };
-        add(colorPicker);
+		var yPos:Int = sidebarPadding;
 
-        colorPreview = new FlxSprite(colorPicker.x + colorPicker.width + sidebarSpacing, colorPicker.y);
-        colorPreview.cameras = [hudCamera];
-        colorPreview.makeGraphic(20, colorPickerSize);
-        add(colorPreview);
+		// color picker row
+		var colorPickerSize:Int = fullWidth - sidebarSpacing - 20;
+		colorPicker = new ColorPicker(sidebarPadding, sidebarPadding, colorPickerSize, colorPickerSize);
+		colorPicker.cameras = [hudCamera];
+		colorPicker.onColorChanged = (color:FlxColor) -> {
+			if (canvas.focusedLayer != null)
+				canvas.brushColor = colorPreview.color = color;
+		};
+		add(colorPicker);
 
-        yPos += Std.int(colorPickerSize + sidebarSpacing);
+		colorPreview = new FlxSprite(colorPicker.x + colorPicker.width + sidebarSpacing, colorPicker.y);
+		colorPreview.cameras = [hudCamera];
+		colorPreview.makeGraphic(20, colorPickerSize);
+		add(colorPreview);
 
-        // hue slider
-        hueSlider = new Slider(sidebarPadding, yPos, fullWidth, 10);
-        hueSlider.cameras = [hudCamera];
-        hueSlider.min = 0;
-        hueSlider.max = 360;
-        hueSlider.stepSize = 1;
-        hueSlider.value = 0;
-        hueSlider.makeRainbowGradient();
-        hueSlider.onChanged = (hue:Float) -> {
-            colorPicker.updateGradient(hue);
-            canvas.brushColor = colorPreview.color = colorPicker.selectedColor;
-        };
-        add(hueSlider);
+		yPos += Std.int(colorPickerSize + sidebarSpacing);
 
-        yPos += Std.int(hueSlider.height + sidebarSpacing);
+		// hue slider
+		hueSlider = new Slider(sidebarPadding, yPos, fullWidth, 10);
+		hueSlider.cameras = [hudCamera];
+		hueSlider.min = 0;
+		hueSlider.max = 360;
+		hueSlider.stepSize = 1;
+		hueSlider.value = 0;
+		hueSlider.makeRainbowGradient();
+		hueSlider.onChanged = (hue:Float) -> {
+			colorPicker.updateGradient(hue);
+			canvas.brushColor = colorPreview.color = colorPicker.selectedColor;
+		};
+		add(hueSlider);
 
-        var sliderDiv:FlxSprite = new FlxSprite(sidebarPadding, yPos).makeGraphic(fullWidth, 1, Colors.divider);
-        add(sliderDiv);
+		yPos += Std.int(hueSlider.height + sidebarSpacing);
 
-        yPos += Std.int(sliderDiv.height + sidebarSpacing);
+		var sliderDiv:FlxSprite = new FlxSprite(sidebarPadding, yPos).makeGraphic(fullWidth, 1, Colors.divider);
+		add(sliderDiv);
 
-        // brush size row
-        var brushLabel:FlxText = new FlxText(sidebarPadding, yPos, -1, "Brush Size", 12);
-        brushLabel.color = Colors.onContainer;
-        add(brushLabel);
+		yPos += Std.int(sliderDiv.height + sidebarSpacing);
 
-        brushSizeIndicator = new FlxText(fullWidth, yPos + 2, -1, '${canvas.brushSize}px', 10);
-        brushSizeIndicator.x -= brushSizeIndicator.width;
-        brushSizeIndicator.color = Colors.onContainer;
-        brushSizeIndicator.alpha = 0.7;
-        add(brushSizeIndicator);
+		// brush size row
+		var brushLabel:FlxText = new FlxText(sidebarPadding, yPos, -1, "Brush Size", 12);
+		brushLabel.color = Colors.onContainer;
+		add(brushLabel);
 
-        brushSizeSlider = new Slider(sidebarPadding, yPos + brushLabel.height, fullWidth, 10);
-        brushSizeSlider.cameras = [hudCamera];
-        brushSizeSlider.min = 0;
-        brushSizeSlider.max = 100;
-        brushSizeSlider.stepSize = 0.2;
-        brushSizeSlider.value = canvas.brushSize;
-        brushSizeSlider.onChanged = (value:Float) -> {
-            var oldX:Float = brushSizeIndicator.x;
-            brushSizeIndicator.text = '${value}px';
-            var newX:Float = x + fullWidth - brushSizeIndicator.width;
-            brushSizeIndicator.x += newX - oldX;
-            if (canvas.focusedLayer != null)
-                canvas.brushSize = value;
-        };
-        add(brushSizeSlider);
+		brushSizeIndicator = new FlxText(fullWidth, yPos + 2, -1, '${canvas.brushSize}px', 10);
+		brushSizeIndicator.x -= brushSizeIndicator.width;
+		brushSizeIndicator.color = Colors.onContainer;
+		brushSizeIndicator.alpha = 0.7;
+		add(brushSizeIndicator);
 
-        yPos += Std.int(brushSizeSlider.height + brushLabel.height + sidebarSpacing);
+		brushSizeSlider = new Slider(sidebarPadding, yPos + brushLabel.height, fullWidth, 10);
+		brushSizeSlider.cameras = [hudCamera];
+		brushSizeSlider.min = 0;
+		brushSizeSlider.max = 100;
+		brushSizeSlider.stepSize = 0.2;
+		brushSizeSlider.value = canvas.brushSize;
+		brushSizeSlider.onChanged = (value:Float) -> {
+			var oldX:Float = brushSizeIndicator.x;
+			brushSizeIndicator.text = '${value}px';
+			var newX:Float = x + fullWidth - brushSizeIndicator.width;
+			brushSizeIndicator.x += newX - oldX;
+			if (canvas.focusedLayer != null)
+				canvas.brushSize = value;
+		};
+		add(brushSizeSlider);
 
-        // layers section
-        var layersDiv:FlxSprite = new FlxSprite(sidebarPadding, yPos).makeGraphic(fullWidth, 1, Colors.divider);
-        add(layersDiv);
+		yPos += Std.int(brushSizeSlider.height + brushLabel.height + sidebarSpacing);
 
-        yPos += Std.int(layersDiv.height + sidebarSpacing);
+		// layers section
+		var layersDiv:FlxSprite = new FlxSprite(sidebarPadding, yPos).makeGraphic(fullWidth, 1, Colors.divider);
+		add(layersDiv);
 
-        var layersLabel:FlxText = new FlxText(sidebarPadding, yPos, -1, "Layers", 12);
-        layersLabel.color = Colors.onContainer;
-        add(layersLabel);
+		yPos += Std.int(layersDiv.height + sidebarSpacing);
 
-        yPos += Std.int(layersLabel.height + 5);
+		var layersLabel:FlxText = new FlxText(sidebarPadding, yPos, -1, "Layers", 12);
+		layersLabel.color = Colors.onContainer;
+		add(layersLabel);
 
-        layerList = new LayerList(sidebarPadding, yPos, fullWidth, 200, canvas);
-        layerList.cameras = [hudCamera];
-        layerList.rebuild();
-        add(layerList);
+		yPos += Std.int(layersLabel.height + 5);
 
-        yPos += Std.int(layerList.height + sidebarSpacing);
+		layerList = new LayerList(sidebarPadding, yPos, fullWidth, 200, canvas);
+		layerList.cameras = [hudCamera];
+		layerList.rebuild();
+		add(layerList);
 
-        var addLayerBtn = new Button(sidebarPadding, yPos, "+ Add Layer", fullWidth, 25);
-        addLayerBtn.cameras = [hudCamera];
-        addLayerBtn.onClick = () -> {
-            canvas.addLayer(true);
-            layerList.rebuild();
-        };
-        add(addLayerBtn);
+		yPos += Std.int(layerList.height + sidebarSpacing);
 
-        // bottom group (save/load/export)
-        bottomGroup = new FlxSpriteGroup();
-        bottomGroup.cameras = [hudCamera];
+		var addLayerBtn = new Button(sidebarPadding, yPos, "+ Add Layer", fullWidth, 25);
+		addLayerBtn.cameras = [hudCamera];
+		addLayerBtn.onClick = () -> {
+			canvas.addLayer(true);
+			layerList.rebuild();
+		};
+		add(addLayerBtn);
 
-        var yPosBtm:Int = 0;
+		// bottom group (save/load/export)
+		bottomGroup = new FlxSpriteGroup();
+		bottomGroup.cameras = [hudCamera];
 
-        var save = new Button(sidebarPadding, yPosBtm, "Save Project", fullWidth, 20);
-        save.cameras = [hudCamera];
-        save.onClick = () -> canvas.saveProject(() -> trace("Project saved!"));
-        bottomGroup.add(save);
+		var yPosBtm:Int = 0;
 
-        yPosBtm += Std.int(save.height + sidebarSpacing);
+		var save = new Button(sidebarPadding, yPosBtm, "Save Project", fullWidth, 20);
+		save.cameras = [hudCamera];
+		save.onClick = () -> canvas.saveProject(() -> trace("Project saved!"));
+		bottomGroup.add(save);
 
-        var load = new Button(sidebarPadding, yPosBtm, "Load Project", fullWidth, 20);
-        load.cameras = [hudCamera];
-        load.onClick = () -> canvas.loadProject(
-            () -> {
-                layerList.rebuild();
-            },
-            (error) -> trace("Load error: " + error)
-        );
-        bottomGroup.add(load);
+		yPosBtm += Std.int(save.height + sidebarSpacing);
 
-        yPosBtm += Std.int(load.height + sidebarSpacing);
+		var load = new Button(sidebarPadding, yPosBtm, "Load Project", fullWidth, 20);
+		load.cameras = [hudCamera];
+		load.onClick = () -> canvas.loadProject(() -> {
+			layerList.rebuild();
+		}, (error) -> trace("Load error: " + error));
+		bottomGroup.add(load);
 
-        var export = new Button(sidebarPadding, yPosBtm, "Export PNG", fullWidth, 20);
-        export.cameras = [hudCamera];
-        export.onClick = () -> canvas.exportToPNG(() -> trace("PNG exported!"));
-        bottomGroup.add(export);
-    }
+		yPosBtm += Std.int(load.height + sidebarSpacing);
 
-    override public function update(elapsed:Float) {
-        super.update(elapsed);
+		var export = new Button(sidebarPadding, yPosBtm, "Export PNG", fullWidth, 20);
+		export.cameras = [hudCamera];
+		export.onClick = () -> canvas.exportToPNG(() -> trace("PNG exported!"));
+		bottomGroup.add(export);
+	}
 
-        bg.scale.y = FlxG.height - sidebarYOffset;
-        y = sidebarYOffset;
-        x = FlxG.width - sidebarWidth;
-        bottomGroup.x = x;
-        bottomGroup.y = FlxG.height - sidebarPadding - bottomGroup.height;
-    }
+	override public function update(elapsed:Float) {
+		super.update(elapsed);
+
+		bg.scale.y = FlxG.height - sidebarYOffset;
+		y = sidebarYOffset;
+		x = FlxG.width - sidebarWidth;
+		bottomGroup.x = x;
+		bottomGroup.y = FlxG.height - sidebarPadding - bottomGroup.height;
+	}
 }
