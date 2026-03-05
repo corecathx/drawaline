@@ -21,6 +21,7 @@ jobs:
           haxelib install lime
           haxelib install openfl
           haxelib install flixel
+          haxelib install flixel-addons
           haxelib run lime setup
 
       - name: Build HTML5
