@@ -1,0 +1,7 @@
+Left Click - Use current tool
+Middle Click - Pan the canvas around
+CTRL + Z - Undo last action
+CTRL + N - New project
+CTRL + O - Open project
+CTRL + S - Save
+CTRL + SHIFT + S - Save as
