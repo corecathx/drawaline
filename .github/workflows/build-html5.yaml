@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup Haxe
-        uses: haxefoundation/haxe-action@v1
+        uses: krdlab/setup-haxe@v2
         with:
           haxe-version: latest
 
