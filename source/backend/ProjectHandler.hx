@@ -83,7 +83,6 @@ class ProjectHandler {
         _fileRef = new FileReference();
         _fileRef.addEventListener(openfl.events.Event.SELECT, (_) -> {
             canvas.projectName = _fileRef.name.replace(".drw", "");
-            _performSave(canvas, onComplete);
         });
         var bytes = _buildProjectBytes(canvas);
         _fileRef.save(bytes, '${canvas.projectName}.drw');
