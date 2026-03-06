@@ -11,9 +11,11 @@ import flixel.util.FlxColor;
 class MenuItem extends FlxSpriteGroup {
 	public var bg:FlxSprite;
 
-	var label:FlxText;
+	public var label:FlxText;
+	public var arrow:FlxText;
 
 	public var onClick:Void->Void = null;
+	public var submenu:MenuDropdown = null;
 
 	var isHovered:Bool = false;
 	var itemWidth:Int;
@@ -32,10 +34,22 @@ class MenuItem extends FlxSpriteGroup {
 		bg.makeGraphic(width, height, FlxColor.WHITE);
 		add(bg);
 
-		label = new FlxText(8, 0, width - 16, text);
+		label = new FlxText(8, 0, width - 24, text);
 		label.setFormat(FlxAssets.FONT_DEFAULT, 11, Colors.onContainer, LEFT);
 		label.y = (height - label.height) / 2;
 		add(label);
+		arrow = new FlxText(width - 16, 0, 12, ">");
+		arrow.setFormat(FlxAssets.FONT_DEFAULT, 11, Colors.textSecondary, RIGHT);
+		arrow.y = (height - arrow.height) / 2;
+		arrow.visible = false;
+		add(arrow);
+
+		Colors.onThemeChanged.add(updateColors);
+	}
+
+	function updateColors() {
+		label.color = Colors.textPrimary;
+		arrow.color = Colors.textSecondary;
 	}
 
 	override function update(elapsed:Float) {
@@ -46,12 +60,17 @@ class MenuItem extends FlxSpriteGroup {
 		if (isHovered) {
 			bg.color = Colors.buttonHover;
 
-			if (FlxG.mouse.justPressed && onClick != null) {
-				onClick();
-				parent.hide();
+			if (submenu != null)
+				parent.openSubmenu(this);
+
+			if (FlxG.mouse.justPressed) {
+				if (submenu == null && onClick != null) {
+					onClick();
+					parent.closeChain();
+				}
 			}
 		} else {
-			bg.color = Colors.container;
+			bg.color = (submenu != null && parent.activeItem == this) ? Colors.buttonPressed : Colors.container;
 		}
 	}
 }
@@ -60,6 +79,8 @@ class MenuDropdown extends FlxSpriteGroup {
 	var bg:FlxSprite;
 
 	public var items:Array<MenuItem> = [];
+	public var activeItem:MenuItem = null;
+	public var parentDropdown:MenuDropdown = null;
 
 	var dropdownWidth:Int;
 	var dropdownHeight:Int;
@@ -78,11 +99,67 @@ class MenuDropdown extends FlxSpriteGroup {
 		hide();
 	}
 
-	public function addItem(text:String, onClick:Void->Void) {
-		var itemY = dropdownHeight;
-		var item = new MenuItem(0, itemY, text, dropdownWidth, 28, this);
-		item.cameras = cameras;
+	public function addItem(text:String, onClick:Void->Void):MenuItem {
+		var item = _makeItem(text);
 		item.onClick = onClick;
+		return item;
+	}
+
+	public function addSubmenu(text:String, width:Int = 150):MenuDropdown {
+		var item = _makeItem(text);
+		item.arrow.visible = true;
+
+		var sub = new MenuDropdown(0, 0, width);
+		sub.parentDropdown = this;
+		sub.cameras = cameras;
+		item.submenu = sub;
+
+		if (_onSubmenuCreated != null)
+			_onSubmenuCreated(sub);
+
+		return sub;
+	}
+
+	public dynamic function _onSubmenuCreated(sub:MenuDropdown):Void {}
+
+	public function openSubmenu(item:MenuItem) {
+		if (activeItem == item)
+			return;
+
+		if (activeItem != null)
+			activeItem.submenu.hide();
+
+		activeItem = item;
+
+		var sub = item.submenu;
+		sub.x = this.x + dropdownWidth;
+		sub.y = this.y + (item.y - this.y);
+		sub.show();
+	}
+
+	public function show() {
+		active = visible = true;
+		for (item in items)
+			item.arrow.visible = item.submenu != null;
+	}
+
+	public function hide() {
+		if (activeItem != null) {
+			activeItem.submenu.hide();
+			activeItem = null;
+		}
+		active = visible = false;
+	}
+
+	public function closeChain() {
+		hide();
+		if (parentDropdown != null)
+			parentDropdown.closeChain();
+	}
+
+	function _makeItem(text:String):MenuItem {
+		var item = new MenuItem(0, dropdownHeight, text, dropdownWidth, 28, this);
+		item.cameras = cameras;
 		items.push(item);
 		add(item);
 
@@ -92,27 +169,40 @@ class MenuDropdown extends FlxSpriteGroup {
 		return item;
 	}
 
-	public function show() {
-		active = visible = true;
-	}
-
-	public function hide() {
-		active = visible = false;
-	}
-
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 
-		var mouseOverDropdown = false;
+		if (!FlxG.mouse.justPressed)
+			return;
+
+		var mouseOverSelf = false;
 		for (item in items) {
 			if (FlxG.mouse.overlaps(item.bg, cameras[0])) {
-				mouseOverDropdown = true;
+				mouseOverSelf = true;
+				break;
 			}
 		}
 
-		if (FlxG.mouse.justPressed && !mouseOverDropdown) {
+		var mouseOverActiveSub = false;
+		if (activeItem != null)
+			mouseOverActiveSub = _overlapsSubmenuChain(activeItem.submenu);
+
+		if (!mouseOverSelf && !mouseOverActiveSub)
 			hide();
+	}
+	function _overlapsSubmenuChain(sub:MenuDropdown):Bool {
+		if (sub == null || !sub.visible)
+			return false;
+
+		for (item in sub.items) {
+			if (FlxG.mouse.overlaps(item.bg, cameras[0]))
+				return true;
 		}
+
+		if (sub.activeItem != null)
+			return _overlapsSubmenuChain(sub.activeItem.submenu);
+
+		return false;
 	}
 }
 
@@ -129,10 +219,21 @@ class MenuBar extends FlxSpriteGroup {
 		super(x, y);
 
 		bg = new FlxSprite();
-		bg.makeGraphic(1, 1, Colors.container);
+		bg.makeGraphic(1, 1);
+		bg.color = Colors.container;
 		bg.origin.set(0, 0);
 		bg.scale.set(screenWidth, barHeight);
 		add(bg);
+		Colors.onThemeChanged.add(updateColors);
+	}
+
+	function updateColors() {
+		bg.color = Colors.container;
+		for (button in menuButtons) {
+			button.bgColorDefault = Colors.container;
+			button.bgColorHovered = Colors.containerHigh;
+			button.bgColorPressed = Colors.buttonPressed;
+		}
 	}
 
 	public function addMenu(text:String, screenWidth:Int):MenuDropdown {
@@ -140,18 +241,22 @@ class MenuBar extends FlxSpriteGroup {
 		var button = new Button(buttonX, 0, text, 60, barHeight);
 		button.bgColorDefault = Colors.container;
 		button.bgColorHovered = Colors.containerHigh;
+		button.bgColorPressed = Colors.buttonPressed;
 		button.cameras = cameras;
 
 		var dropdown = new MenuDropdown(buttonX, barHeight, 150);
 		dropdown.cameras = cameras;
+		dropdown._onSubmenuCreated = function(sub) {
+			_registerSubmenu(sub);
+		};
+
 		button.onClick = function() {
 			if (activeDropdown == dropdown) {
 				dropdown.hide();
 				activeDropdown = null;
 			} else {
-				if (activeDropdown != null) {
+				if (activeDropdown != null)
 					activeDropdown.hide();
-				}
 				dropdown.show();
 				activeDropdown = dropdown;
 			}
@@ -166,6 +271,13 @@ class MenuBar extends FlxSpriteGroup {
 		return dropdown;
 	}
 
+	function _registerSubmenu(sub:MenuDropdown) {
+		sub._onSubmenuCreated = function(child) {
+			_registerSubmenu(child);
+		};
+		add(sub);
+	}
+
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 
@@ -178,19 +290,9 @@ class MenuBar extends FlxSpriteGroup {
 				}
 			}
 
-			if (!clickedButton && activeDropdown != null) {
-				var clickedDropdown = false;
-				for (item in activeDropdown.items) {
-					if (FlxG.mouse.overlaps(item.bg, cameras[0])) {
-						clickedDropdown = true;
-						break;
-					}
-				}
-
-				if (!clickedDropdown) {
-					activeDropdown.hide();
-					activeDropdown = null;
-				}
+			if (!clickedButton) {
+				activeDropdown.hide();
+				activeDropdown = null;
 			}
 		}
 	}

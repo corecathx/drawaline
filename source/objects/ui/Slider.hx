@@ -19,6 +19,7 @@ class Slider extends FlxSpriteGroup {
 	var moving:Bool = false;
 	var barWidth:Int;
 	var barHeight:Int;
+	var isRainbow:Bool = false;
 
 	public function new(x:Float, y:Float, width:Int = 200, height:Int = 5, ?initialValue:Float = 0.5) {
 		super(x, y);
@@ -28,23 +29,34 @@ class Slider extends FlxSpriteGroup {
 		this.value = initialValue;
 
 		barBg = new FlxSprite();
-		barBg.makeGraphic(width, height, Colors.sliderBg);
+		barBg.makeGraphic(width, height);
 		add(barBg);
 
 		barFill = new FlxSprite();
-		barFill.makeGraphic(width, height, Colors.sliderFill);
+		barFill.makeGraphic(width, height);
 		add(barFill);
 
 		handle = new FlxSprite();
 		handle.makeGraphic(2, height, FlxColor.WHITE);
 		add(handle);
 
+		updateColors();
 		updateHandlePosition();
+		Colors.onThemeChanged.add(updateColors);
+	}
+
+	function updateColors() {
+		if (isRainbow)
+			return;
+		barBg.color = Colors.sliderBg;
+		barFill.color = Colors.sliderFill;
 	}
 
 	// used in the editor sidebar
 	public function makeRainbowGradient() {
+		isRainbow = true;
 		barFill.visible = false;
+		barBg.color = FlxColor.WHITE;
 		barBg.makeGraphic(barWidth, barHeight, FlxColor.TRANSPARENT);
 		barBg.pixels.lock();
 

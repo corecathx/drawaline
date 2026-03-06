@@ -1,6 +1,5 @@
 package;
 
-import lime.utils.Assets;
 import backend.KeybindManager;
 import backend.ProjectHandler;
 import flixel.FlxCamera;
@@ -11,6 +10,8 @@ import flixel.math.FlxPoint;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import lime.app.Application;
+import lime.system.Clipboard;
+import lime.utils.Assets;
 import objects.Canvas;
 import objects.Sidebar;
 import objects.Toolbar;
@@ -62,7 +63,8 @@ class PlayState extends FlxState {
 		toolbar = new Toolbar(canvas, hudCamera);
 		add(toolbar);
 
-		infoTextBG = new FlxSprite().makeGraphic(1, 30, Colors.container);
+		infoTextBG = new FlxSprite().makeGraphic(1, 30);
+		infoTextBG.color = Colors.container;
 		infoTextBG.cameras = [hudCamera];
 		infoTextBG.origin.set(0, 0.5);
 		add(infoTextBG);
@@ -95,7 +97,20 @@ class PlayState extends FlxState {
 		keybinds.addKey([CONTROL, S], () -> canvas.saveProject(_onProjectChange));
 		keybinds.addKey([CONTROL, SHIFT, S], () -> ProjectHandler.saveAs(canvas, _onProjectChange));
 		keybinds.addKey([CONTROL, E], () -> canvas.exportToPNG(() -> trace("export completed")));
+		keybinds.addKey([CONTROL, V], _handlePaste);
 		add(keybinds);
+		Colors.onThemeChanged.add(updateColors);
+	}
+
+	function updateColors() {
+		FlxG.camera.bgColor = Colors.surface;
+		infoTextBG.color = Colors.container;
+		infoText.color = Colors.textPrimary;
+		focusedLayerInfo.color = Colors.textPrimary;
+	}
+
+	function _handlePaste() {
+		trace(Clipboard.text);
 	}
 
 	function initMenuBar() {
@@ -117,6 +132,11 @@ class PlayState extends FlxState {
 		var viewMenu = menuBar.addMenu("View", FlxG.width);
 		viewMenu.addItem("Toggle smoothing", () -> canvas.antialiasing = !canvas.antialiasing);
 
+		var themeMenu = viewMenu.addSubmenu("Theme");
+		for (theme in Colors.getThemes()) {
+			themeMenu.addItem(theme, () -> Colors.loadTheme(theme));
+		}
+		
 		var helpMenu = menuBar.addMenu("Help", FlxG.width);
 		helpMenu.addItem("Controls", () -> Popup.show("Controls", Assets.getText('assets/data/menubar/controls.txt'), [
 			{

@@ -25,16 +25,29 @@ class Toolbar extends FlxSpriteGroup {
 		this.cameras = [hudCamera];
 
 		build();
+		Colors.onThemeChanged.add(updateColors);
+	}
+
+	function updateColors() {
+		bg.color = Colors.container;
+
+		for (button in buttons) {
+			button.bgColorDefault = Colors.containerHigh;
+			button.bgColorHovered = Colors.buttonHover;
+			button.bgColorPressed = Colors.buttonPressed;
+		}
 	}
 
 	var brushBtn:Button;
 	var eraserBtn:Button;
 	var cameraPanBtn:Button;
+	var buttons:Array<Button> = [];
 
 	function build() {
 		var fullWidth:Int = toolbarWidth - (toolbarPadding * 2);
 
-		bg = new FlxSprite().makeGraphic(toolbarWidth, 1, Colors.container);
+		bg = new FlxSprite().makeGraphic(toolbarWidth, 1);
+		bg.color = Colors.container;
 		bg.origin.set(0.5, 0);
 		add(bg);
 
@@ -61,6 +74,7 @@ class Toolbar extends FlxSpriteGroup {
 				}
 			}
 
+			buttons.push(object);
 			add(object);
 
 			yPos += Std.int(object.height + toolbarSpacing);

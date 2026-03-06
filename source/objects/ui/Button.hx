@@ -81,9 +81,9 @@ class Button extends FlxSpriteGroup {
 		}
 
 		if (label != null)
-			label.color = FlxColor.WHITE;
+			label.color = Colors.textPrimary;
 		if (icon != null)
-			icon.color = FlxColor.WHITE;
+			icon.color = Colors.textPrimary;
 
 		isHovered = FlxG.mouse.overlaps(bg, cameras[0]);
 

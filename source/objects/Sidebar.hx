@@ -28,6 +28,11 @@ class Sidebar extends FlxSpriteGroup {
 	var colorPreview:FlxSprite;
 	var brushSizeSlider:Slider;
 	var brushSizeIndicator:FlxText;
+	var sliderDiv:FlxSprite;
+	var layersDiv:FlxSprite;
+	var brushLabel:FlxText;
+	var layersLabel:FlxText;
+	var addLayerBtn:Button;
 
 	public var layerList:LayerList;
 
@@ -38,12 +43,27 @@ class Sidebar extends FlxSpriteGroup {
 		this.cameras = [hudCamera];
 
 		build();
+		Colors.onThemeChanged.add(refreshColors);
+	}
+
+	function refreshColors() {
+		FlxG.camera.bgColor = Colors.surface;
+		bg.color = Colors.container;
+		sliderDiv.color = Colors.divider;
+		layersDiv.color = Colors.divider;
+		brushLabel.color = Colors.onContainer;
+		brushSizeIndicator.color = Colors.onContainer;
+		layersLabel.color = Colors.onContainer;
+		addLayerBtn.bgColorDefault = Colors.containerHigh;
+		addLayerBtn.bgColorHovered = Colors.buttonHover;
+		addLayerBtn.bgColorPressed = Colors.buttonPressed;
 	}
 
 	function build() {
 		var fullWidth:Int = sidebarWidth - (sidebarPadding * 2);
 
-		bg = new FlxSprite().makeGraphic(sidebarWidth, 1, Colors.container);
+		bg = new FlxSprite().makeGraphic(sidebarWidth, 1);
+		bg.color = Colors.container;
 		bg.origin.set(0.5, 0);
 		add(bg);
 
@@ -82,13 +102,13 @@ class Sidebar extends FlxSpriteGroup {
 
 		yPos += Std.int(hueSlider.height + sidebarSpacing);
 
-		var sliderDiv:FlxSprite = new FlxSprite(sidebarPadding, yPos).makeGraphic(fullWidth, 1, Colors.divider);
+		sliderDiv = new FlxSprite(sidebarPadding, yPos).makeGraphic(fullWidth, 1, Colors.divider);
 		add(sliderDiv);
 
 		yPos += Std.int(sliderDiv.height + sidebarSpacing);
 
 		// brush size row
-		var brushLabel:FlxText = new FlxText(sidebarPadding, yPos, -1, "Brush Size", 12);
+		brushLabel = new FlxText(sidebarPadding, yPos, -1, "Brush Size", 12);
 		brushLabel.color = Colors.onContainer;
 		add(brushLabel);
 
@@ -117,12 +137,12 @@ class Sidebar extends FlxSpriteGroup {
 		yPos += Std.int(brushSizeSlider.height + brushLabel.height + sidebarSpacing);
 
 		// layers section
-		var layersDiv:FlxSprite = new FlxSprite(sidebarPadding, yPos).makeGraphic(fullWidth, 1, Colors.divider);
+		layersDiv = new FlxSprite(sidebarPadding, yPos).makeGraphic(fullWidth, 1, Colors.divider);
 		add(layersDiv);
 
 		yPos += Std.int(layersDiv.height + sidebarSpacing);
 
-		var layersLabel:FlxText = new FlxText(sidebarPadding, yPos, -1, "Layers", 12);
+		layersLabel = new FlxText(sidebarPadding, yPos, -1, "Layers", 12);
 		layersLabel.color = Colors.onContainer;
 		add(layersLabel);
 
@@ -135,7 +155,7 @@ class Sidebar extends FlxSpriteGroup {
 
 		yPos += Std.int(layerList.height + sidebarSpacing);
 
-		var addLayerBtn = new Button(sidebarPadding, yPos, "+ Add Layer", fullWidth, 25);
+		addLayerBtn = new Button(sidebarPadding, yPos, "+ Add Layer", fullWidth, 25);
 		addLayerBtn.cameras = [hudCamera];
 		addLayerBtn.onClick = () -> {
 			canvas.addLayer(true);
@@ -171,7 +191,7 @@ class Sidebar extends FlxSpriteGroup {
 		bottomGroup.add(export);
 	}
 
-	override public function update(elapsed:Float) {
+	override function update(elapsed:Float) {
 		super.update(elapsed);
 
 		bg.scale.y = FlxG.height - sidebarYOffset;

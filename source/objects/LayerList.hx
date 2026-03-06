@@ -15,6 +15,7 @@ class LayerList extends FlxSpriteGroup {
 	var canvas:Canvas;
 	var layerItems:Array<LayerItem> = [];
 	var itemContainer:FlxSpriteGroup;
+	var bg:FlxSprite;
 
 	public var pendingRebuild:Bool = false;
 
@@ -33,13 +34,19 @@ class LayerList extends FlxSpriteGroup {
 		listWidth = width;
 		listHeight = height;
 
-		var bg = new FlxSprite().makeGraphic(width, height, Colors.containerHigh);
+		bg = new FlxSprite().makeGraphic(width, height);
+		bg.color = Colors.containerHigh;
 		add(bg);
 
 		itemContainer = new FlxSpriteGroup();
 		add(itemContainer);
+		Colors.onThemeChanged.add(updateColors);
 	}
 
+	function updateColors() {
+		bg.color = Colors.containerHigh;
+		rebuild();
+	}
 	public function rebuild() {
 		for (item in layerItems) {
 			itemContainer.remove(item, true);

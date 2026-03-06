@@ -48,8 +48,14 @@ class Canvas extends FlxSpriteGroup {
 		layerGroup = new FlxSpriteGroup();
 		layerGroup.setPosition(borderThickness, borderThickness);
 		add(layerGroup);
+		Colors.onThemeChanged.add(updateColors);
 	}
 
+	function updateColors() {
+		backgroundCheckerLight = Colors.canvasCheckerLight;
+		backgroundCheckerDark = Colors.canvasCheckerDark;
+		_initBackground();
+	}
 	/**
 	 * Add a new layer.
 	 * @param focus Automatically focus to this layer.
@@ -225,9 +231,21 @@ class Canvas extends FlxSpriteGroup {
 	}
 
 	function _initBackground() {
+		trace('generating checker background');
+		var previousPosition:Int = -1;
+
+		if (background != null) {
+			previousPosition = members.indexOf(background);
+			background.destroy();
+			remove(background);
+		}
+
 		background = FlxGridOverlay.create(20, 20, canvasWidth, canvasHeight, true, backgroundCheckerLight, backgroundCheckerDark);
 		background.setPosition(borderThickness, borderThickness);
-		add(background);
+		if (previousPosition == -1)
+			add(background);
+		else
+			insert(previousPosition, background);
 	}
 }
 
