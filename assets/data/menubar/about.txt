@@ -1,6 +1,5 @@
-drawaline - Corecathx 2026
+drawaline - corecathx 2026
 
 Team:
-
-- Corecathx
+- corecathx
 - Macohi
