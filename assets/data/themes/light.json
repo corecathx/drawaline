@@ -1,0 +1,21 @@
+{
+    "surface": "0xFFF5F5F5",
+    "border": "0xFFCCCCCC",
+    "container": "0xFFEAEAEA",
+    "containerHigh": "0xFFDDDDDD",
+    "onContainer": "0xFF1A1A1A",
+    "canvasCheckerLight": "0xFFD8D8D8",
+    "canvasCheckerDark": "0xFFCFCFCF",
+    "buttonHover": "0xFFE0E0E0",
+    "buttonPressed": "0xFFCCCCCC",
+    "sliderFill": "0xFF222222",
+    "sliderBg": "0xFFBBBBBB",
+    "accent": "0xFF888888",
+    "disabled": "0xFFD0D0D0",
+    "disabledText": "0xFFAAAAAA",
+    "divider": "0xFFDDDDDD",
+    "overlay": "0x6CFFFFFF",
+    "textPrimary": "0xFF1A1A1A",
+    "textSecondary": "0xFF555555",
+    "textDisabled": "0xFFAAAAAA"
+}
