@@ -9,7 +9,7 @@ You can try and play around with this project using this link:\
 
 # Contributing
 Contributions are really appreciated! But there are some rules that you gotta follow.
-1. Every commits has to follow [Conventional Commits](https://www.conventionalcommits.org) so it's easier to tell the changes on a commit, not necessarily has to follow it, but it's best to keep it like this.
+1. Every commits has to follow [Conventional Commits](https://www.conventionalcommits.org) so it's easier to tell the changes on a commit.
 2. Keep your formatting consistent, this project has a defined Haxe formatting (hxformat.json).
 
 # License
