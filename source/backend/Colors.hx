@@ -16,6 +16,8 @@ import sys.io.File;
 @:publicFields
 class Colors {
 	public static var onThemeChanged:FlxSignal = new FlxSignal();
+
+	
 	// ui colors
 	static var surface:FlxColor = 0xFF101010;
 	static var border:FlxColor = 0xFF363636;
