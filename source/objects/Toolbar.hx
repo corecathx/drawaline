@@ -53,13 +53,13 @@ class Toolbar extends FlxSpriteGroup {
 
 		var yPos:Int = toolbarPadding;
 
-		for (button in ['brush', 'eraser', 'camera_pan',]) {
+		for (button in ['brush', 'eraser', 'eyedropper', 'camera_pan']) {
 			var object:Button = new Button(toolbarPadding, yPos, '', fullWidth, fullWidth, button.toLowerCase());
 
 			object.onClick = () -> {
 				PlayState.cameraPanningTool = false;
 				PlayState.middleMousePanning = false;
-
+				PlayState.eyedropperTool = false;
 				switch (button.toLowerCase()) {
 					case 'brush':
 						canvas.brushMode = DRAW;
@@ -71,6 +71,9 @@ class Toolbar extends FlxSpriteGroup {
 
 						PlayState.lastMouseX = FlxG.mouse.getViewPosition().x;
 						PlayState.lastMouseY = FlxG.mouse.getViewPosition().y;
+					case 'eyedropper':
+						canvas.brushMode = NONE;
+						PlayState.eyedropperTool = true;
 				}
 			}
 

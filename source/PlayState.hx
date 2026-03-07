@@ -13,6 +13,7 @@ import lime.app.Application;
 import lime.system.Clipboard;
 import lime.utils.Assets;
 import objects.Canvas;
+import objects.Eyedropper;
 import objects.Sidebar;
 import objects.Toolbar;
 import objects.ui.MenuBar;
@@ -35,6 +36,7 @@ class PlayState extends FlxState {
 
 	public static var cameraPanningTool:Bool = false;
 	public static var middleMousePanning:Bool = false;
+	public static var eyedropperTool:Bool = false;
 
 	public static var lastMouseX:Float = 0;
 	public static var lastMouseY:Float = 0;
@@ -42,7 +44,7 @@ class PlayState extends FlxState {
 	var infoTextBG:FlxSprite;
 	var infoText:FlxText;
 	var focusedLayerInfo:FlxText;
-
+	var eyedropper:Eyedropper;
 	var _lastTitle:String = "";
 
 	override public function create() {
@@ -103,6 +105,16 @@ class PlayState extends FlxState {
 		var toast:Toast = new Toast();
 		toast.cameras = [hudCamera];
 		add(toast);
+
+		eyedropper = new Eyedropper();
+		eyedropper.cameras = [hudCamera];
+		eyedropper.onColorChanged = (color) -> {
+			canvas.brushColor = color;
+			eyedropperTool = false;
+			canvas.brushMode = DRAW;
+			Toast.show('Picked ${color.toHexString(false, false).toUpperCase()}');
+		};
+		add(eyedropper);
 
 		Theme.onThemeChanged.add(updateColors);
 	}
@@ -192,6 +204,7 @@ class PlayState extends FlxState {
 		sidebar.sidebarYOffset = menuH;
 		menuBar.bg.scale.x = FlxG.width;
 
+		eyedropper.visible = eyedropperTool;
 		_updateInfoBar();
 		_updateCanvasInteraction();
 	}
@@ -215,6 +228,9 @@ class PlayState extends FlxState {
 	}
 
 	function getToolString():String {
+		if (eyedropperTool)
+			return 'Eyedropper';
+
 		if (middleMousePanning)
 			return 'Camera Panning (Middle Mouse)';
 
@@ -232,7 +248,10 @@ class PlayState extends FlxState {
 	function _updateCanvasInteraction() {
 		var mouseView = FlxG.mouse.getViewPosition(hudCamera);
 		var menuH = menuBar.bg.scale.y;
-		var blocked = mouseView.x > FlxG.width - sidebar.sidebarWidth || mouseView.y < menuH || mouseView.x < toolbar.toolbarWidth;
+		var blocked = mouseView.x > FlxG.width - sidebar.sidebarWidth
+			|| mouseView.y < menuH
+			|| mouseView.x < toolbar.toolbarWidth
+			|| eyedropperTool;
 
 		if (canvas.focusedLayer != null)
 			canvas.focusedLayer.active = !blocked;
