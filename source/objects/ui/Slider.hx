@@ -42,14 +42,14 @@ class Slider extends FlxSpriteGroup {
 
 		updateColors();
 		updateHandlePosition();
-		Colors.onThemeChanged.add(updateColors);
+		Theme.onThemeChanged.add(updateColors);
 	}
 
 	function updateColors() {
 		if (isRainbow)
 			return;
-		barBg.color = Colors.sliderBg;
-		barFill.color = Colors.sliderFill;
+		barBg.color = Theme.sliderBg;
+		barFill.color = Theme.sliderFill;
 	}
 
 	// used in the editor sidebar

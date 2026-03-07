@@ -1,6 +1,5 @@
 package objects;
 
-import backend.Colors;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxSpriteGroup;
@@ -35,16 +34,16 @@ class LayerList extends FlxSpriteGroup {
 		listHeight = height;
 
 		bg = new FlxSprite().makeGraphic(width, height);
-		bg.color = Colors.containerHigh;
+		bg.color = Theme.containerHigh;
 		add(bg);
 
 		itemContainer = new FlxSpriteGroup();
 		add(itemContainer);
-		Colors.onThemeChanged.add(updateColors);
+		Theme.onThemeChanged.add(updateColors);
 	}
 
 	function updateColors() {
-		bg.color = Colors.containerHigh;
+		bg.color = Theme.containerHigh;
 		rebuild();
 	}
 	public function rebuild() {
@@ -137,17 +136,17 @@ class LayerItem extends FlxSpriteGroup {
 		bg = new FlxSprite().makeGraphic(width, height, FlxColor.WHITE);
 		add(bg);
 
-		focusIndicator = new FlxSprite(0, 0).makeGraphic(3, height, Colors.accent);
+		focusIndicator = new FlxSprite(0, 0).makeGraphic(3, height, Theme.accent);
 		focusIndicator.visible = false;
 		add(focusIndicator);
 
 		thumbSize = height - 10;
-		thumbnail = new FlxSprite(5, 5).makeGraphic(thumbSize, thumbSize, Colors.canvasCheckerDark, true);
+		thumbnail = new FlxSprite(5, 5).makeGraphic(thumbSize, thumbSize, Theme.canvasCheckerDark, true);
 		add(thumbnail);
 		_refreshThumbnail();
 
 		label = new FlxText(thumbnail.x + thumbSize + 5, 0, width - thumbSize - 82, layer.layerName);
-		label.setFormat(FlxAssets.FONT_DEFAULT, 10, Colors.onContainer, LEFT);
+		label.setFormat(FlxAssets.FONT_DEFAULT, 10, Theme.onContainer, LEFT);
 		label.y = (height - label.height) / 2;
 		add(label);
 
@@ -188,7 +187,7 @@ class LayerItem extends FlxSpriteGroup {
 		var m = new Matrix();
 		m.scale(thumbSize / src.width, thumbSize / src.height);
 
-		thumbnail.pixels.fillRect(thumbnail.pixels.rect, Colors.canvasCheckerDark);
+		thumbnail.pixels.fillRect(thumbnail.pixels.rect, Theme.canvasCheckerDark);
 		thumbnail.pixels.draw(src, m, null, null, null, true);
 		thumbnail.dirty = true;
 	}
@@ -205,7 +204,7 @@ class LayerItem extends FlxSpriteGroup {
 		label.y = y + (height - label.height) / 2;
 		var focused = layer.isFocused;
 		focusIndicator.visible = focused;
-		bg.color = focused ? Colors.buttonPressed : Colors.container;
+		bg.color = focused ? Theme.buttonPressed : Theme.container;
 		alpha = layer.visible ? 1.0 : 0.4;
 
 		var cam = cameras[0];
@@ -216,7 +215,7 @@ class LayerItem extends FlxSpriteGroup {
 
 		if (FlxG.mouse.overlaps(bg, cam) && !overBtn) {
 			if (!focused)
-				bg.color = Colors.buttonHover;
+				bg.color = Theme.buttonHover;
 			if (FlxG.mouse.justPressed) {
 				canvas.setFocus(layer.layerID);
 

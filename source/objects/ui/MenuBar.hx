@@ -1,6 +1,5 @@
 package objects.ui;
 
-import backend.Colors;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxSpriteGroup;
@@ -35,21 +34,21 @@ class MenuItem extends FlxSpriteGroup {
 		add(bg);
 
 		label = new FlxText(8, 0, width - 24, text);
-		label.setFormat(FlxAssets.FONT_DEFAULT, 11, Colors.onContainer, LEFT);
+		label.setFormat(FlxAssets.FONT_DEFAULT, 11, Theme.onContainer, LEFT);
 		label.y = (height - label.height) / 2;
 		add(label);
 		arrow = new FlxText(width - 16, 0, 12, ">");
-		arrow.setFormat(FlxAssets.FONT_DEFAULT, 11, Colors.textSecondary, RIGHT);
+		arrow.setFormat(FlxAssets.FONT_DEFAULT, 11, Theme.textSecondary, RIGHT);
 		arrow.y = (height - arrow.height) / 2;
 		arrow.visible = false;
 		add(arrow);
 
-		Colors.onThemeChanged.add(updateColors);
+		Theme.onThemeChanged.add(updateColors);
 	}
 
 	function updateColors() {
-		label.color = Colors.textPrimary;
-		arrow.color = Colors.textSecondary;
+		label.color = Theme.textPrimary;
+		arrow.color = Theme.textSecondary;
 	}
 
 	override function update(elapsed:Float) {
@@ -58,7 +57,7 @@ class MenuItem extends FlxSpriteGroup {
 		isHovered = FlxG.mouse.overlaps(bg, cameras[0]);
 
 		if (isHovered) {
-			bg.color = Colors.buttonHover;
+			bg.color = Theme.buttonHover;
 
 			if (submenu != null)
 				parent.openSubmenu(this);
@@ -70,7 +69,7 @@ class MenuItem extends FlxSpriteGroup {
 				}
 			}
 		} else {
-			bg.color = (submenu != null && parent.activeItem == this) ? Colors.buttonPressed : Colors.container;
+			bg.color = (submenu != null && parent.activeItem == this) ? Theme.buttonPressed : Theme.container;
 		}
 	}
 }
@@ -92,7 +91,7 @@ class MenuDropdown extends FlxSpriteGroup {
 		dropdownHeight = 0;
 
 		bg = new FlxSprite();
-		bg.makeGraphic(dropdownWidth, 1, Colors.container);
+		bg.makeGraphic(dropdownWidth, 1, Theme.container);
 		bg.origin.set(0.5, 0);
 		add(bg);
 
@@ -220,28 +219,28 @@ class MenuBar extends FlxSpriteGroup {
 
 		bg = new FlxSprite();
 		bg.makeGraphic(1, 1);
-		bg.color = Colors.container;
+		bg.color = Theme.container;
 		bg.origin.set(0, 0);
 		bg.scale.set(screenWidth, barHeight);
 		add(bg);
-		Colors.onThemeChanged.add(updateColors);
+		Theme.onThemeChanged.add(updateColors);
 	}
 
 	function updateColors() {
-		bg.color = Colors.container;
+		bg.color = Theme.container;
 		for (button in menuButtons) {
-			button.bgColorDefault = Colors.container;
-			button.bgColorHovered = Colors.containerHigh;
-			button.bgColorPressed = Colors.buttonPressed;
+			button.bgColorDefault = Theme.container;
+			button.bgColorHovered = Theme.containerHigh;
+			button.bgColorPressed = Theme.buttonPressed;
 		}
 	}
 
 	public function addMenu(text:String, screenWidth:Int):MenuDropdown {
 		var buttonX = (menuButtons.length * 65) + 8;
 		var button = new Button(buttonX, 0, text, 60, barHeight);
-		button.bgColorDefault = Colors.container;
-		button.bgColorHovered = Colors.containerHigh;
-		button.bgColorPressed = Colors.buttonPressed;
+		button.bgColorDefault = Theme.container;
+		button.bgColorHovered = Theme.containerHigh;
+		button.bgColorPressed = Theme.buttonPressed;
 		button.cameras = cameras;
 
 		var dropdown = new MenuDropdown(buttonX, barHeight, 150);

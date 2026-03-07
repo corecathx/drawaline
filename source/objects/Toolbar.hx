@@ -25,16 +25,16 @@ class Toolbar extends FlxSpriteGroup {
 		this.cameras = [hudCamera];
 
 		build();
-		Colors.onThemeChanged.add(updateColors);
+		Theme.onThemeChanged.add(updateColors);
 	}
 
 	function updateColors() {
-		bg.color = Colors.container;
+		bg.color = Theme.container;
 
 		for (button in buttons) {
-			button.bgColorDefault = Colors.containerHigh;
-			button.bgColorHovered = Colors.buttonHover;
-			button.bgColorPressed = Colors.buttonPressed;
+			button.bgColorDefault = Theme.containerHigh;
+			button.bgColorHovered = Theme.buttonHover;
+			button.bgColorPressed = Theme.buttonPressed;
 		}
 	}
 
@@ -47,7 +47,7 @@ class Toolbar extends FlxSpriteGroup {
 		var fullWidth:Int = toolbarWidth - (toolbarPadding * 2);
 
 		bg = new FlxSprite().makeGraphic(toolbarWidth, 1);
-		bg.color = Colors.container;
+		bg.color = Theme.container;
 		bg.origin.set(0.5, 0);
 		add(bg);
 
@@ -96,8 +96,8 @@ class Toolbar extends FlxSpriteGroup {
 		bg.scale.y = FlxG.height - toolbarYOffset;
 		y = toolbarYOffset;
 
-		brushBtn.bgColorDefault = (canvas.brushMode == DRAW) ? Colors.buttonHover : Colors.container;
-		eraserBtn.bgColorDefault = (canvas.brushMode == ERASE) ? Colors.buttonHover : Colors.container;
-		cameraPanBtn.bgColorDefault = (PlayState.cameraPanningTool) ? Colors.buttonHover : Colors.container;
+		brushBtn.bgColorDefault = (canvas.brushMode == DRAW) ? Theme.buttonHover : Theme.container;
+		eraserBtn.bgColorDefault = (canvas.brushMode == ERASE) ? Theme.buttonHover : Theme.container;
+		cameraPanBtn.bgColorDefault = (PlayState.cameraPanningTool) ? Theme.buttonHover : Theme.container;
 	}
 }

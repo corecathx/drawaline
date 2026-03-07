@@ -14,10 +14,11 @@ import sys.io.File;
  * Every colors used in the app.
  */
 @:publicFields
-class Colors {
+class Theme {
 	public static var onThemeChanged:FlxSignal = new FlxSignal();
 
-	
+	static var fontPath:String = 'assets/data/musticapro.otf';
+
 	// ui colors
 	static var surface:FlxColor = 0xFF101010;
 	static var border:FlxColor = 0xFF363636;
@@ -120,31 +121,40 @@ class Colors {
 	}
 
 	static function apply(j:Dynamic):Void {
-		inline function get(field:String, fallback:FlxColor):FlxColor {
+		inline function getColor(field:String, fallback:FlxColor):FlxColor {
 			var v:Null<String> = Reflect.field(j, field);
 			if (v == null)
 				return fallback;
 			return FlxColor.fromString(v);
 		}
+		
+		inline function getString(field:String, fallback:String):String {
+			var v:Null<String> = Reflect.field(j, field);
+			if (v == null)
+				return fallback;
+			return v;
+		}
 
-		surface = get("surface", surface);
-		border = get("border", border);
-		container = get("container", container);
-		containerHigh = get("containerHigh", containerHigh);
-		onContainer = get("onContainer", onContainer);
-		canvasCheckerLight = get("canvasCheckerLight", canvasCheckerLight);
-		canvasCheckerDark = get("canvasCheckerDark", canvasCheckerDark);
-		buttonHover = get("buttonHover", buttonHover);
-		buttonPressed = get("buttonPressed", buttonPressed);
-		sliderFill = get("sliderFill", sliderFill);
-		sliderBg = get("sliderBg", sliderBg);
-		accent = get("accent", accent);
-		disabled = get("disabled", disabled);
-		disabledText = get("disabledText", disabledText);
-		divider = get("divider", divider);
-		overlay = get("overlay", overlay);
-		textPrimary = get("textPrimary", textPrimary);
-		textSecondary = get("textSecondary", textSecondary);
-		textDisabled = get("textDisabled", textDisabled);
+		surface = getColor("surface", surface);
+		border = getColor("border", border);
+		container = getColor("container", container);
+		containerHigh = getColor("containerHigh", containerHigh);
+		onContainer = getColor("onContainer", onContainer);
+		canvasCheckerLight = getColor("canvasCheckerLight", canvasCheckerLight);
+		canvasCheckerDark = getColor("canvasCheckerDark", canvasCheckerDark);
+		buttonHover = getColor("buttonHover", buttonHover);
+		buttonPressed = getColor("buttonPressed", buttonPressed);
+		sliderFill = getColor("sliderFill", sliderFill);
+		sliderBg = getColor("sliderBg", sliderBg);
+		accent = getColor("accent", accent);
+		disabled = getColor("disabled", disabled);
+		disabledText = getColor("disabledText", disabledText);
+		divider = getColor("divider", divider);
+		overlay = getColor("overlay", overlay);
+		textPrimary = getColor("textPrimary", textPrimary);
+		textSecondary = getColor("textSecondary", textSecondary);
+		textDisabled = getColor("textDisabled", textDisabled);
+
+		fontPath = getString('fontPath', fontPath);
 	}
 }

@@ -20,9 +20,9 @@ class TextInput extends FlxSpriteGroup {
 		instance = this;
 
 		_input = new FlxInputText(0, 0, 120, "", 10);
-		_input.backgroundColor = Colors.containerHigh;
+		_input.backgroundColor = Theme.containerHigh;
 		_input.fieldBorderThickness = 0;
-		_input.color = Colors.textPrimary;
+		_input.color = Theme.textPrimary;
 		_input.onEnter.add((text) -> {
 			close(true);
 		});

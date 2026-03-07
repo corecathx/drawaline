@@ -1,7 +1,5 @@
-// source/objects/Canvas.hx (updated)
 package objects;
 
-import backend.Colors;
 import backend.ProjectHandler;
 import flixel.addons.display.FlxGridOverlay;
 import flixel.group.FlxSpriteGroup;
@@ -27,8 +25,8 @@ class Canvas extends FlxSpriteGroup {
 	public var brushMode:BrushMode = DRAW;
 
 	var background:FlxSprite;
-	var backgroundCheckerLight:FlxColor = Colors.canvasCheckerLight;
-	var backgroundCheckerDark:FlxColor = Colors.canvasCheckerDark;
+	var backgroundCheckerLight:FlxColor = Theme.canvasCheckerLight;
+	var backgroundCheckerDark:FlxColor = Theme.canvasCheckerDark;
 	var border:FlxSprite;
 	var layerGroup:FlxSpriteGroup;
 
@@ -48,12 +46,12 @@ class Canvas extends FlxSpriteGroup {
 		layerGroup = new FlxSpriteGroup();
 		layerGroup.setPosition(borderThickness, borderThickness);
 		add(layerGroup);
-		Colors.onThemeChanged.add(updateColors);
+		Theme.onThemeChanged.add(updateColors);
 	}
 
 	function updateColors() {
-		backgroundCheckerLight = Colors.canvasCheckerLight;
-		backgroundCheckerDark = Colors.canvasCheckerDark;
+		backgroundCheckerLight = Theme.canvasCheckerLight;
+		backgroundCheckerDark = Theme.canvasCheckerDark;
 		_initBackground();
 	}
 	/**
@@ -226,7 +224,7 @@ class Canvas extends FlxSpriteGroup {
 		border = new FlxSprite();
 		border.makeGraphic(canvasWidth + (borderThickness * 2), canvasHeight + (borderThickness * 2), FlxColor.TRANSPARENT);
 
-		FlxSpriteUtil.drawRect(border, 0, 0, border.width, border.height, FlxColor.TRANSPARENT, {thickness: borderThickness, color: Colors.border});
+		FlxSpriteUtil.drawRect(border, 0, 0, border.width, border.height, FlxColor.TRANSPARENT, {thickness: borderThickness, color: Theme.border});
 		add(border);
 	}
 

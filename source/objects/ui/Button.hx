@@ -1,6 +1,5 @@
 package objects.ui;
 
-import backend.Colors;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxSpriteGroup;
@@ -15,11 +14,11 @@ class Button extends FlxSpriteGroup {
 
 	public var onClick:Void->Void = null;
 	public var enabled:Bool = true;
-	public var bgColorDefault:FlxColor = Colors.containerHigh;
-	public var bgColorHovered:FlxColor = Colors.buttonHover;
-	public var bgColorPressed:FlxColor = Colors.buttonPressed;
-	public var bgColorDisabled:FlxColor = Colors.disabled;
-	public var labelColorDisabled:FlxColor = Colors.textDisabled;
+	public var bgColorDefault:FlxColor = Theme.containerHigh;
+	public var bgColorHovered:FlxColor = Theme.buttonHover;
+	public var bgColorPressed:FlxColor = Theme.buttonPressed;
+	public var bgColorDisabled:FlxColor = Theme.disabled;
+	public var labelColorDisabled:FlxColor = Theme.textDisabled;
 
 	var isHovered:Bool = false;
 	var isPressed:Bool = false;
@@ -51,7 +50,7 @@ class Button extends FlxSpriteGroup {
 
 		if (text != '') {
 			label = new FlxText(0, 0, width, text);
-			label.setFormat(FlxAssets.FONT_DEFAULT, 12, Colors.onContainer, CENTER);
+			label.setFormat(FlxAssets.FONT_DEFAULT, 12, Theme.onContainer, CENTER);
 			label.y = (height - label.height) / 2;
 
 			if (icon != null) {
@@ -81,9 +80,9 @@ class Button extends FlxSpriteGroup {
 		}
 
 		if (label != null)
-			label.color = Colors.textPrimary;
+			label.color = Theme.textPrimary;
 		if (icon != null)
-			icon.color = Colors.textPrimary;
+			icon.color = Theme.textPrimary;
 
 		isHovered = FlxG.mouse.overlaps(bg, cameras[0]);
 

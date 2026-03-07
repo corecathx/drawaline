@@ -18,6 +18,7 @@ import objects.Toolbar;
 import objects.ui.MenuBar;
 import objects.ui.Popup;
 import objects.ui.TextInput;
+import objects.ui.Toast;
 
 class PlayState extends FlxState {
 	var hudCamera:FlxCamera;
@@ -47,7 +48,7 @@ class PlayState extends FlxState {
 	override public function create() {
 		super.create();
 		FlxSprite.defaultAntialiasing = true;
-		FlxG.camera.bgColor = Colors.surface;
+		FlxG.camera.bgColor = Theme.surface;
 
 		hudCamera = new FlxCamera();
 		hudCamera.bgColor = FlxColor.TRANSPARENT;
@@ -64,7 +65,7 @@ class PlayState extends FlxState {
 		add(toolbar);
 
 		infoTextBG = new FlxSprite().makeGraphic(1, 30);
-		infoTextBG.color = Colors.container;
+		infoTextBG.color = Theme.container;
 		infoTextBG.cameras = [hudCamera];
 		infoTextBG.origin.set(0, 0.5);
 		add(infoTextBG);
@@ -99,18 +100,23 @@ class PlayState extends FlxState {
 		keybinds.addKey([CONTROL, E], () -> canvas.exportToPNG(() -> trace("export completed")));
 		keybinds.addKey([CONTROL, V], _handlePaste);
 		add(keybinds);
-		Colors.onThemeChanged.add(updateColors);
+		var toast:Toast = new Toast();
+		toast.cameras = [hudCamera];
+		add(toast);
+
+		Theme.onThemeChanged.add(updateColors);
 	}
 
 	function updateColors() {
-		FlxG.camera.bgColor = Colors.surface;
-		infoTextBG.color = Colors.container;
-		infoText.color = Colors.textPrimary;
-		focusedLayerInfo.color = Colors.textPrimary;
+		FlxG.camera.bgColor = Theme.surface;
+		infoTextBG.color = Theme.container;
+		infoText.color = Theme.textPrimary;
+		focusedLayerInfo.color = Theme.textPrimary;
 	}
 
 	function _handlePaste() {
 		trace(Clipboard.text);
+		Toast.show(Clipboard.text);
 	}
 
 	function initMenuBar() {
@@ -119,11 +125,25 @@ class PlayState extends FlxState {
 		add(menuBar);
 
 		var fileMenu = menuBar.addMenu("File", FlxG.width);
-		fileMenu.addItem("New", () -> ProjectHandler.newProject(canvas, _onProjectChange));
-		fileMenu.addItem("Open...", () -> canvas.loadProject(_onProjectChange, e -> trace("open error: " + e)));
-		fileMenu.addItem("Save", () -> canvas.saveProject(_onProjectChange));
-		fileMenu.addItem("Save As", () -> ProjectHandler.saveAs(canvas, _onProjectChange));
-		fileMenu.addItem("Export PNG", () -> canvas.exportToPNG(() -> trace("export completed")));
+		fileMenu.addItem("New", () -> {
+			ProjectHandler.newProject(canvas, () -> {
+				_onProjectChange();
+				Toast.show("Created a new project");
+			});
+		});
+		fileMenu.addItem("Open...", () -> canvas.loadProject(() -> {
+			_onProjectChange();
+			Toast.show('Opened ${canvas.projectFilePath ?? canvas.projectName}');
+		}, e -> trace("open error: " + e)));
+		fileMenu.addItem("Save", () -> canvas.saveProject(() -> {
+			_onProjectChange();
+			Toast.show("Saved sucessfully!");
+		}));
+		fileMenu.addItem("Save As", () -> ProjectHandler.saveAs(canvas, () -> {
+			_onProjectChange();
+			Toast.show("Saved sucessfully!");
+		}));
+		fileMenu.addItem("Export PNG", () -> canvas.exportToPNG(() -> Toast.show("Exported sucessfully")));
 
 		var editMenu = menuBar.addMenu("Edit", FlxG.width);
 		editMenu.addItem("Undo", () -> canvas.focusedLayer?.undoLastStroke());
@@ -133,10 +153,13 @@ class PlayState extends FlxState {
 		viewMenu.addItem("Toggle smoothing", () -> canvas.antialiasing = !canvas.antialiasing);
 
 		var themeMenu = viewMenu.addSubmenu("Theme");
-		for (theme in Colors.getThemes()) {
-			themeMenu.addItem(theme, () -> Colors.loadTheme(theme));
+		for (theme in Theme.getThemes()) {
+			themeMenu.addItem(theme, () -> {
+				Theme.loadTheme(theme);
+				Toast.show("Loaded theme: " + theme);
+			});
 		}
-		
+
 		var helpMenu = menuBar.addMenu("Help", FlxG.width);
 		helpMenu.addItem("Controls", () -> Popup.show("Controls", Assets.getText('assets/data/menubar/controls.txt'), [
 			{

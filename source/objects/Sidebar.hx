@@ -43,27 +43,27 @@ class Sidebar extends FlxSpriteGroup {
 		this.cameras = [hudCamera];
 
 		build();
-		Colors.onThemeChanged.add(refreshColors);
+		Theme.onThemeChanged.add(refreshColors);
 	}
 
 	function refreshColors() {
-		FlxG.camera.bgColor = Colors.surface;
-		bg.color = Colors.container;
-		sliderDiv.color = Colors.divider;
-		layersDiv.color = Colors.divider;
-		brushLabel.color = Colors.onContainer;
-		brushSizeIndicator.color = Colors.onContainer;
-		layersLabel.color = Colors.onContainer;
-		addLayerBtn.bgColorDefault = Colors.containerHigh;
-		addLayerBtn.bgColorHovered = Colors.buttonHover;
-		addLayerBtn.bgColorPressed = Colors.buttonPressed;
+		FlxG.camera.bgColor = Theme.surface;
+		bg.color = Theme.container;
+		sliderDiv.color = Theme.divider;
+		layersDiv.color = Theme.divider;
+		brushLabel.color = Theme.onContainer;
+		brushSizeIndicator.color = Theme.onContainer;
+		layersLabel.color = Theme.onContainer;
+		addLayerBtn.bgColorDefault = Theme.containerHigh;
+		addLayerBtn.bgColorHovered = Theme.buttonHover;
+		addLayerBtn.bgColorPressed = Theme.buttonPressed;
 	}
 
 	function build() {
 		var fullWidth:Int = sidebarWidth - (sidebarPadding * 2);
 
 		bg = new FlxSprite().makeGraphic(sidebarWidth, 1);
-		bg.color = Colors.container;
+		bg.color = Theme.container;
 		bg.origin.set(0.5, 0);
 		add(bg);
 
@@ -102,19 +102,19 @@ class Sidebar extends FlxSpriteGroup {
 
 		yPos += Std.int(hueSlider.height + sidebarSpacing);
 
-		sliderDiv = new FlxSprite(sidebarPadding, yPos).makeGraphic(fullWidth, 1, Colors.divider);
+		sliderDiv = new FlxSprite(sidebarPadding, yPos).makeGraphic(fullWidth, 1, Theme.divider);
 		add(sliderDiv);
 
 		yPos += Std.int(sliderDiv.height + sidebarSpacing);
 
 		// brush size row
 		brushLabel = new FlxText(sidebarPadding, yPos, -1, "Brush Size", 12);
-		brushLabel.color = Colors.onContainer;
+		brushLabel.color = Theme.onContainer;
 		add(brushLabel);
 
 		brushSizeIndicator = new FlxText(fullWidth, yPos + 2, -1, '${canvas.brushSize}px', 10);
 		brushSizeIndicator.x -= brushSizeIndicator.width;
-		brushSizeIndicator.color = Colors.onContainer;
+		brushSizeIndicator.color = Theme.onContainer;
 		brushSizeIndicator.alpha = 0.7;
 		add(brushSizeIndicator);
 
@@ -137,13 +137,13 @@ class Sidebar extends FlxSpriteGroup {
 		yPos += Std.int(brushSizeSlider.height + brushLabel.height + sidebarSpacing);
 
 		// layers section
-		layersDiv = new FlxSprite(sidebarPadding, yPos).makeGraphic(fullWidth, 1, Colors.divider);
+		layersDiv = new FlxSprite(sidebarPadding, yPos).makeGraphic(fullWidth, 1, Theme.divider);
 		add(layersDiv);
 
 		yPos += Std.int(layersDiv.height + sidebarSpacing);
 
 		layersLabel = new FlxText(sidebarPadding, yPos, -1, "Layers", 12);
-		layersLabel.color = Colors.onContainer;
+		layersLabel.color = Theme.onContainer;
 		add(layersLabel);
 
 		yPos += Std.int(layersLabel.height + 5);

@@ -1,6 +1,5 @@
 package objects.ui;
 
-import backend.Colors;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxSubState;
@@ -32,10 +31,10 @@ class Popup extends FlxSubState {
 		var bx = (FlxG.width - W) / 2;
 
 		var titleText = new FlxText(0, 0, W - PAD * 2, title);
-		titleText.setFormat(FlxAssets.FONT_DEFAULT, 18, Colors.textPrimary, LEFT);
+		titleText.setFormat(FlxAssets.FONT_DEFAULT, 18, Theme.textPrimary, LEFT);
 
 		var msgText = new FlxText(0, 0, W - PAD * 2, message);
-		msgText.setFormat(FlxAssets.FONT_DEFAULT, 12, Colors.textSecondary, LEFT);
+		msgText.setFormat(FlxAssets.FONT_DEFAULT, 12, Theme.textSecondary, LEFT);
 
 		var contentHeight = PAD + titleText.height + 2 + msgText.height + 16;
 
@@ -49,11 +48,11 @@ class Popup extends FlxSubState {
 		var by = (FlxG.height - boxH) / 2;
 
 		var overlay = new FlxSprite();
-		overlay.makeGraphic(FlxG.width, FlxG.height, Colors.overlay);
+		overlay.makeGraphic(FlxG.width, FlxG.height, Theme.overlay);
 		add(overlay);
 
 		var box = new FlxSprite(bx, by);
-		box.makeGraphic(W, Std.int(boxH), Colors.surface);
+		box.makeGraphic(W, Std.int(boxH), Theme.surface);
 		add(box);
 
 		titleText.x = bx + PAD;
