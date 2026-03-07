@@ -153,10 +153,11 @@ class PlayState extends FlxState {
 		viewMenu.addItem("Toggle smoothing", () -> canvas.antialiasing = !canvas.antialiasing);
 
 		var themeMenu = viewMenu.addSubmenu("Theme");
-		for (theme in Theme.getThemes()) {
-			themeMenu.addItem(theme, () -> {
-				Theme.loadTheme(theme);
-				Toast.show("Loaded theme: " + theme);
+		for (entry in Theme.getThemes()) {
+			var id = entry.id;
+			themeMenu.addItem(entry.name, () -> {
+				Theme.loadTheme(id);
+				Toast.show("Loaded theme: " + entry.name);
 			});
 		}
 

@@ -10,6 +10,11 @@ using StringTools;
 import sys.FileSystem;
 import sys.io.File;
 #end
+typedef ThemeEntry = {
+	var id:String;
+	var name:String;
+}
+
 /**
  * Every colors used in the app.
  */
@@ -49,11 +54,19 @@ class Theme {
 	static var currentTheme:String = "dark";
 
 	/**
-	 * Returns all available theme names (defaults: dark, light).
-	 * On desktop, it loads themes from assets/data/themes/ folder.
+	 * Returns all available themes.
+	 * On desktop, it also loads themes from assets/data/themes/ folder.
 	 */
-	static function getThemes():Array<String> {
-		var themes:Array<String> = ["dark", "light"];
+	static function getThemes():Array<ThemeEntry> {
+		var themes:Array<ThemeEntry> = [];
+
+		var dir:String = "assets/data/themes/";
+		for (file in Assets.list()) {
+			if (!file.startsWith(dir) || !file.endsWith(".json"))
+				continue;
+			var id:String = file.substr(dir.length, file.length - dir.length - 5);
+			themes.push({id: id, name: _readName(id)});
+		}
 
 		#if sys
 		var dir:String = "assets/data/themes/";
@@ -61,9 +74,10 @@ class Theme {
 			for (file in FileSystem.readDirectory(dir)) {
 				if (!file.endsWith(".json"))
 					continue;
-				var name:String = file.substr(0, file.length - 5);
-				if (name != "dark" && name != "light")
-					themes.push(name);
+				var id:String = file.substr(0, file.length - 5);
+				if (themes.filter(e -> e.id == id).length > 0)
+					continue;
+				themes.push({id: id, name: _readName(id)});
 			}
 		}
 		#end
@@ -72,64 +86,61 @@ class Theme {
 	}
 
 	/**
-	 * Load a theme by name.
+	 * Load a theme by id (file name without extension).
 	 * Falls back to dark theme if loading fails.
 	 */
-	static function loadTheme(name:String):Void {
+	static function loadTheme(id:String):Void {
 		var json:Dynamic = null;
-		var path:String = 'assets/data/themes/$name.json';
+		var path:String = 'assets/data/themes/$id.json';
 
-		if (name == "dark" || name == "light") {
+		if (Assets.exists(path)) {
 			try {
 				var raw:String = Assets.getText(path);
 				if (raw != null)
 					json = Json.parse(raw);
 			} catch (e) {
-				trace('failed to load theme "$name": $e');
+				trace('failed to load theme "$id": $e');
 			}
 		}
 		#if sys
-		else {
+		else if (FileSystem.exists(path)) {
 			try {
-				if (FileSystem.exists(path)) {
-					json = Json.parse(File.getContent(path));
-				} else {
-					trace('theme file not found: $path');
-				}
+				json = Json.parse(File.getContent(path));
 			} catch (e) {
-				trace('failed to load theme "$name": $e');
+				trace('failed to load theme "$id": $e');
 			}
 		}
-		#else
-		else {
-			trace('custom colors isn\'t supported on this target, falling back to dark');
-		}
 		#end
+		else {
+		trace('theme "$id" not found');
+	}
 
 		if (json == null) {
 			trace('falling back to dark theme.');
-			if (name != "dark")
+			if (id != "dark")
 				loadTheme("dark");
 			return;
 		}
 
 		apply(json);
-		currentTheme = name;
-		trace('theme "$name" loaded.');
+		currentTheme = id;
+		trace('theme "$id" loaded.');
 
 		onThemeChanged.dispatch();
 	}
 
 	static function apply(j:Dynamic):Void {
+		var colors:Dynamic = Reflect.field(j, "colors");
+
 		inline function getColor(field:String, fallback:FlxColor):FlxColor {
-			var v:Null<String> = Reflect.field(j, field);
+			var v:Null<String> = Reflect.field(colors, field);
 			if (v == null)
 				return fallback;
 			return FlxColor.fromString(v);
 		}
-		
+
 		inline function getString(field:String, fallback:String):String {
-			var v:Null<String> = Reflect.field(j, field);
+			var v:Null<String> = Reflect.field(colors, field);
 			if (v == null)
 				return fallback;
 			return v;
@@ -155,6 +166,36 @@ class Theme {
 		textSecondary = getColor("textSecondary", textSecondary);
 		textDisabled = getColor("textDisabled", textDisabled);
 
-		fontPath = getString('fontPath', fontPath);
+		fontPath = getString("fontPath", fontPath);
+	}
+	/**
+	 * Reads just the "name" field from a theme json without fully loading it.
+	 * Falls back to a prettified version of the id if no name is set.
+	 */
+	static function _readName(id:String):String {
+		var path:String = 'assets/data/themes/$id.json';
+		try {
+			var raw:Null<String> = null;
+
+			if (Assets.exists(path))
+				raw = Assets.getText(path);
+			#if sys
+			else if (FileSystem.exists(path))
+				raw = File.getContent(path);
+			#end
+
+			if (raw != null) {
+				var json:Dynamic = Json.parse(raw);
+				var n:Null<String> = Reflect.field(json, "name");
+				if (n != null && n.trim() != "")
+					return n;
+			}
+		} catch (e) {}
+
+		return id.replace("-", " ")
+			.replace("_", " ")
+			.split(" ")
+			.map(w -> w.charAt(0).toUpperCase() + w.substr(1))
+			.join(" ");
 	}
 }
